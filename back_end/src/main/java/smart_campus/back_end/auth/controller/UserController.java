@@ -21,6 +21,12 @@ public class UserController {
         return userRepository.findAll();
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public User getUser(@PathVariable String id){
+        return userRepository.findById(id).orElseThrow();
+    }
+
     @PutMapping("/{id}/roles")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public User updateRoles(@PathVariable String id, @RequestBody List<String> roles){

@@ -23,4 +23,9 @@ public class AuthController {
 
         return response;
     }
+
+    @GetMapping("/status")
+    public Map<String, Object> status(){
+        return Map.of("status", "authenticated");
+    }
 }
