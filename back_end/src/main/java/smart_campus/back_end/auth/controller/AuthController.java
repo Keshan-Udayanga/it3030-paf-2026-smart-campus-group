@@ -1,12 +1,14 @@
 package smart_campus.back_end.auth.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import smart_campus.back_end.auth.dto.AuthResponse;
+import smart_campus.back_end.auth.model.User;
+import smart_campus.back_end.auth.service.CustomUserDetails;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import java.util.List;
@@ -17,22 +19,21 @@ import java.util.Map;
 public class AuthController {
 
     @GetMapping("/me")
-    public ResponseEntity<AuthResponse> currentUser(@AuthenticationPrincipal OAuth2User user){
-        if(user == null){
+    public ResponseEntity<AuthResponse> currentUser(Authentication authentication){
+        if(authentication == null){
             return ResponseEntity.status(401).build();
         }
         System.out.println("/me triggered");
-        List<String> roles = user.getAuthorities().stream()
-                .map(auth -> auth.getAuthority())
-                .toList();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = customUserDetails.getUser();
 
         AuthResponse response = new AuthResponse(
-                user.getAttribute("email"),
-                user.getAttribute("name"),
-                roles
+                user.getEmail(),
+                user.getName(),
+                user.getRoles()
         );
 
-        response.add(linkTo(methodOn(AuthController.class).currentUser(user)).withSelfRel());
+        response.add(linkTo(methodOn(AuthController.class).currentUser((Authentication) user)).withSelfRel());
 
         return ResponseEntity.ok(response);
     }
