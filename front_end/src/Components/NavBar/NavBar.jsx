@@ -1,33 +1,44 @@
-import { useState } from "react";
-import { FiMenu, FiX } from "react-icons/fi";
-import "./NavBar.css";
+import React, { useState } from 'react';
+import './NavBar.css';
 
-const Navbar = () => {
+const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
-  const handleLinkClick = () => setIsOpen(false); // closes menu on link click
-
   return (
     <nav className="navbar">
-      <h2 className="logo">SmartCampus</h2>
+  <div className="container navbar-container">
 
-      <ul className={`nav-links ${isOpen ? "active" : ""}`}>
-        <li onClick={handleLinkClick}>Home</li>
-        <li onClick={handleLinkClick}>Facilities</li>
-        <li onClick={handleLinkClick}>Bookings</li>
-        <li onClick={handleLinkClick}>Tickets</li>
-        <li className="login-mobile" onClick={handleLinkClick}>Login</li>
-      </ul>
+    {/* LEFT - LOGO */}
+    <div className="navbar-logo">
+      <img src="/assets/logo.png" alt="Brand Logo" />
+    </div>
 
+    {/* CENTER - MENU */}
+    <div className={`navbar-menu ${isOpen ? 'active' : ''}`}>
+      <a href="#home" className="nav-link" onClick={toggleMenu}>Home</a>
+      <a href="#features" className="nav-link" onClick={toggleMenu}>Ticket</a>
+      <a href="#services" className="nav-link" onClick={toggleMenu}>Resources</a>
+      <a href="#services" className="nav-link" onClick={toggleMenu}>Services</a>
+      <a href="#contact" className="nav-link" onClick={toggleMenu}>Contact Us</a>
+    </div>
+
+    {/* RIGHT - LOGIN BUTTON */}
+    <div className="navbar-actions">
       <button className="login-btn">Login</button>
+    </div>
 
-      <div className="mobile-menu-icon" onClick={toggleMenu}>
-        {isOpen ? <FiX /> : <FiMenu />}
-      </div>
-    </nav>
+    {/* HAMBURGER */}
+    <div className="hamburger" onClick={toggleMenu}>
+      <span className={`bar ${isOpen ? 'active' : ''}`}></span>
+      <span className={`bar ${isOpen ? 'active' : ''}`}></span>
+      <span className={`bar ${isOpen ? 'active' : ''}`}></span>
+    </div>
+
+  </div>
+</nav>
   );
 };
 
-export default Navbar;
+export default NavBar;
