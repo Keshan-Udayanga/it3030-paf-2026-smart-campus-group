@@ -28,8 +28,8 @@ public class AuthController {
         User user = customUserDetails.getUser();
 
         AuthResponse response = new AuthResponse(
-                user.getEmail(),
                 user.getName(),
+                user.getEmail(),
                 user.getRoles()
         );
 
