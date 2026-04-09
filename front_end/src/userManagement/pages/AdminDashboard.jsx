@@ -4,6 +4,7 @@ import "../styles/AdminDashboard.css";
 
 function AdminDashboard() {
   const [user, setUser] = useState(null);
+  const [userCount, setUserCount] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -16,6 +17,12 @@ function AdminDashboard() {
       localStorage.removeItem("token");
       window.location.href = "/";
     });
+
+    axios.get("http://localhost:8080/api/v1/users/count", {
+    headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => setUserCount(res.data))
+    .catch(err => console.error(err));
 
   }, []);
 
@@ -47,7 +54,7 @@ function AdminDashboard() {
 
           <div className="admin-card">
             <h4>Total Users</h4>
-            <p className="card-value">120</p>
+          <p className="card-value"> {userCount}</p>
             <span>Manage system users</span>
           </div>
 
