@@ -8,7 +8,7 @@ function UsersPage() {
   const [search, setSearch] = useState("");
 
   const filteredUsers = users.filter(u =>
-    u.email.toLowerCase().includes(search.toLowerCase())
+    u.name.toLowerCase().includes(search.toLowerCase())
   );
 
   
@@ -56,7 +56,7 @@ function UsersPage() {
         </thead>
 
         <tbody>
-          {users.map(user => (
+          {filteredUsers.map(user => (
             <tr key={user.id}>
               <td>{user.name}</td>
               <td>{user.email}</td>
