@@ -37,3 +37,8 @@
   flex: 1;
   background: #020617;
 }
+
+.active {
+  background: #10b981;
+  color: white;
+}

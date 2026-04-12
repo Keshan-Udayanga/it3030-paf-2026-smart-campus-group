@@ -5,6 +5,11 @@ import "../styles/UsersPage.css";
 function UsersPage() {
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
+  const [search, setSearch] = useState("");
+
+  const filteredUsers = users.filter(u =>
+    u.email.toLowerCase().includes(search.toLowerCase())
+  );
 
   
   useEffect(() => {
@@ -21,9 +26,12 @@ function UsersPage() {
       { roles: [newRole] },
       { headers: { Authorization: `Bearer ${token}` } }
     )
-    .then(() => {
-      // refresh users after update
-      window.location.reload();
+    .then(res => {
+      setUsers(prev =>
+        prev.map(u =>
+          u.id === id ? { ...u, roles: [newRole] } : u
+        )
+      );
     })
     .catch(err => console.error(err));
   };
@@ -31,6 +39,11 @@ function UsersPage() {
   return (
     <div className="users-container">
       <h2>User Management</h2>
+      <input
+        type="text"
+        placeholder="Search users..."
+        onChange={(e) => setSearch(e.target.value)}
+      />
 
       <table className="users-table">
         <thead>
@@ -47,21 +60,19 @@ function UsersPage() {
             <tr key={user.id}>
               <td>{user.name}</td>
               <td>{user.email}</td>
-              <td>{user.roles.join(", ")}</td>
               <td>
-                <button
-                  onClick={() => updateRole(user.id, "ROLE_ADMIN")}
-                  className="btn-role"
+                {user.roles.map(role => (
+                  <span key={role} className="role-badge">{role}</span>
+                ))}
+              </td>
+              <td>
+                <select
+                  value={user.roles[0]}
+                  onChange={(e) => updateRole(user.id, e.target.value)}
                 >
-                  Make Admin
-                </button>
-
-                <button
-                  onClick={() => updateRole(user.id, "ROLE_USER")}
-                  className="btn-role-secondary"
-                >
-                  Make User
-                </button>
+                  <option value="ROLE_USER">User</option>
+                  <option value="ROLE_ADMIN">Admin</option>
+                </select>
               </td>
             </tr>
           ))}
