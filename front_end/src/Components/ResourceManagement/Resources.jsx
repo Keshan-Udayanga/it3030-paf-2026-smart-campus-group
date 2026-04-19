@@ -2,15 +2,15 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Resources.css";
 
-const ResourceManagement = () => {
+const Resources = () => {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Example API endpoint, replace with your Spring Boot API
-    axios.get("http://localhost:8081/api/resources")
+    axios
+      .get("http://localhost:8082/api/resources")
       .then((res) => {
-        setResources(res.data);
+        setResources(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -30,10 +30,23 @@ const ResourceManagement = () => {
             {resources.map((res) => (
               <div key={res.id} className="resource-card">
                 <h3>{res.name}</h3>
-                <p><strong>Type:</strong> {res.type}</p>
-                <p><strong>Capacity:</strong> {res.capacity}</p>
-                <p><strong>Location:</strong> {res.location}</p>
-                <p><strong>Status:</strong> <span className={res.status === "ACTIVE" ? "active" : "inactive"}>{res.status}</span></p>
+                <p>
+                  <strong>Type:</strong> {res.type}
+                </p>
+                <p>
+                  <strong>Capacity:</strong> {res.capacity}
+                </p>
+                <p>
+                  <strong>Location:</strong> {res.location}
+                </p>
+                <p>
+                  <strong>Status:</strong>{" "}
+                  <span
+                    className={res.status === "ACTIVE" ? "active" : "inactive"}
+                  >
+                    {res.status}
+                  </span>
+                </p>
                 <div className="card-buttons">
                   <button>View</button>
                   <button>Book</button>
@@ -47,4 +60,4 @@ const ResourceManagement = () => {
   );
 };
 
-export default ResourceManagement;
+export default Resources;
