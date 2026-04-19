@@ -2,10 +2,12 @@ package smart_campus.back_end.resources.model;
 
 import java.time.LocalTime;
 
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@Builder
 @Data
 @Document(collection = "resources")
 public class Resource {
