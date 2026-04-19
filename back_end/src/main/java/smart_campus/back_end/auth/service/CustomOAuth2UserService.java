@@ -32,7 +32,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         // Save user if not exists
         User user = userRepository.findByEmail(email).orElseGet(() -> {
-            User newUser = new User(name, email, Collections.singletonList("ROLE_STUDENT"), "google");
+            User newUser = new User(name, email, Collections.singletonList("ROLE_USER"), "google");
             User saved = userRepository.save(newUser);
 
             return saved;

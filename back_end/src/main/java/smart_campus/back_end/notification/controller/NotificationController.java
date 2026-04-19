@@ -10,7 +10,7 @@ import smart_campus.back_end.notification.service.NotificationService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/notification")
+@RequestMapping("/api/v1/notifications")
 public class NotificationController {
 
     private final NotificationService service;
