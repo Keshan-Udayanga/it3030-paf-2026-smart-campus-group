@@ -23,7 +23,6 @@ public class NotificationController {
     @GetMapping
     public List<NotificationResponse> getMyNotifications(@AuthenticationPrincipal CustomUserDetails userDetails){
         String userId = userDetails.getUser().getId();
-        service.createNotification(userId, "Test notification", "SYSTEM");
 
         return service.getUserNotifications(userId)
                 .stream()

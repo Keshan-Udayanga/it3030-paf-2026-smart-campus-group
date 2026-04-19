@@ -8,6 +8,8 @@ import smart_campus.back_end.auth.dto.UserResponse;
 import smart_campus.back_end.auth.mapper.UserMapper;
 import smart_campus.back_end.auth.model.User;
 import smart_campus.back_end.auth.service.UserService;
+import smart_campus.back_end.notification.service.NotificationService;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import java.util.List;
 
@@ -17,11 +19,14 @@ public class UserController {
 
     private final UserService userService;
 
+    private final NotificationService notificationService;
+
     private final UserMapper userMapper;
 
-    public UserController(UserMapper userMapper, UserService userService){
+    public UserController(UserMapper userMapper, UserService userService, NotificationService notificationService){
         this.userMapper = userMapper;
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping
@@ -62,6 +67,14 @@ public class UserController {
         user.setRoles(request.roles());
 
         userService.saveUser(user);
+
+        //Notification
+        notificationService.createNotification(
+                user.getId(),
+                "Your role has been updated to " + request.roles(),
+                "ROLE_UPDATE"
+        );
+
         UserResponse response = userMapper.toUserResponse(user);
 
         response.add(linkTo(methodOn(UserController.class)

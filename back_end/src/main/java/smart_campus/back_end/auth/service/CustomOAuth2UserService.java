@@ -37,7 +37,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             return saved;
         });
-        System.out.printf("newuser" + user.getEmail());
+
         // Convert roles to Spring authorities
         var authorities = user.getRoles().stream()
                 .map(SimpleGrantedAuthority::new)
