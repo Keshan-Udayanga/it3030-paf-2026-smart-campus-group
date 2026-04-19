@@ -1,0 +1,108 @@
+/* PAGE WRAPPER */
+.resources-page {
+  min-height: 100vh;
+  padding: 50px 20px;
+  background: var(--background);
+}
+
+/* TITLE */
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--text-dark);
+}
+
+/* LOADING TEXT */
+.loading {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+/* GRID */
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* CARD */
+.resource-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border: 1px solid var(--secondary);
+}
+
+.resource-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* CARD TITLE */
+.resource-card h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: var(--text-dark);
+}
+
+/* TEXT */
+.resource-card p {
+  font-size: 14px;
+  margin: 6px 0;
+  color: var(--text-muted);
+}
+
+/* STATUS */
+.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.inactive {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* BUTTONS */
+.card-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.card-buttons button {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+/* VIEW BUTTON */
+.card-buttons button:first-child {
+  background: var(--secondary);
+  color: var(--text-dark);
+}
+
+.card-buttons button:first-child:hover {
+  background: var(--secondary-dark);
+}
+
+/* BOOK BUTTON (PRIMARY) */
+.card-buttons button:last-child {
+  background: var(--primary);
+  color: var(--text-light);
+}
+
+.card-buttons button:last-child:hover {
+  background: var(--primary-dark);
+}
