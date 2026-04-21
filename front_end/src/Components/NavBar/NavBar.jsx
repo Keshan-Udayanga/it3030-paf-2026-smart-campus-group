@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FiBell, FiCheck } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import './NavBar.css';
 
@@ -9,9 +9,11 @@ const NavBar = () => {
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const notificationRef = useRef(null);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -49,8 +51,14 @@ const NavBar = () => {
 
   //Outside Click Handler
   const handleClickOutside = (event) => {
+    // avatar dropdown
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setShowDropdown(false);
+    }
+
+    // notification dropdown
+    if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+      setShowNotifications(false);
     }
   };
 
@@ -127,10 +135,13 @@ const NavBar = () => {
             // LOGGED IN
             <>
               {/* Notification Bell */}
-              <div className="notification-wrapper" >
+              <div className="notification-wrapper" ref={notificationRef}>
                 <div 
                   className="notification-icon"
-                  onClick={() => setShowNotifications(!showNotifications)}
+                  onClick={() => {
+                    setShowNotifications(!showNotifications);
+                    setShowDropdown(false);
+                  }}
                 >
                   <FiBell size={22} />
 
@@ -161,6 +172,11 @@ const NavBar = () => {
                         )}
                       </div>
                     ))}
+                    <div className="notification-footer">
+                      <button onClick={() => navigate("/notifications")}>
+                        View All
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -169,7 +185,10 @@ const NavBar = () => {
               <div className="user-avatar-wrapper" ref={dropdownRef}>
                 <div 
                   className="user-avatar"
-                  onClick={() => setShowDropdown(true)}
+                  onClick={() => {
+                    setShowDropdown(!showDropdown);
+                    setShowNotifications(false);
+                  }}
                 >
                   {user.name.charAt(0).toUpperCase()}
                 </div>
