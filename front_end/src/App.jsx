@@ -9,6 +9,7 @@ import AdminDashboard from './userManagement/pages/AdminDashboard';
 import UserDashboard from './userManagement/pages/UserDashboard';
 import UsersPage from './userManagement/pages/UsersPage';
 import AdminLayout from './userManagement/pages/AdminLayout';
+import NotificationsPage from './Components/NotificationService/NotificationPage';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<UsersPage />} />
         </Route>
+        <Route path="/notifications" element={<NotificationsPage />} />
       </Routes>
       <Footer />
       </BrowserRouter>
