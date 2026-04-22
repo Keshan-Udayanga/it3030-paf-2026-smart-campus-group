@@ -30,14 +30,12 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<User> userList = userService.findAll();
         return ResponseEntity.ok(userMapper.toUserResponse(userList));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserResponse> getUser(@PathVariable String id){
         User user = userService.findById(id);
         UserResponse response = userMapper.toUserResponse(user);
@@ -60,7 +58,6 @@ public class UserController {
     }
 
     @PutMapping("/{id}/roles")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserResponse> updateRoles(@PathVariable String id, @RequestBody UpdateUserRolesRequest request){
         User user = userService.findById(id);
 

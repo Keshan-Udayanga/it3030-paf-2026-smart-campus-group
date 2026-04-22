@@ -48,7 +48,7 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/login/oauth2/**"
                         ).permitAll()
-                        .requestMatchers("/api/v1/notifications/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/api/v1/notifications/**").hasRole("USER")
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // all other endpoints require auth
@@ -89,6 +89,6 @@ public class SecurityConfig {
 
     @Bean
     public RoleHierarchy roleHierarchy(){
-        return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_MANAGER \n ROLE_MANAGER > ROLE_TECHNICIAN \n ROLE_MANAGER > ROLE_USER");
+        return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_RESOURCE_MANAGER \n ROLE_RESOURCE_MANAGER > ROLE_TECHNICIAN \n ROLE_TECHNICIAN > ROLE_USER");
     }
 }
