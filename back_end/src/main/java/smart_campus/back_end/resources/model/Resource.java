@@ -20,7 +20,6 @@ public class Resource {
     private String location;
     private String status; // ACTIVE / OUT_OF_SERVICE
 
-
     public String getId() {
         return id;
     }
@@ -68,4 +67,5 @@ public class Resource {
     public void setStatus(String status) {
         this.status = status;
     }
+
 }
