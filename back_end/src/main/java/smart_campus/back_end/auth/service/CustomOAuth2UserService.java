@@ -30,13 +30,20 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email"); // normalize email
         String name = oAuth2User.getAttribute("name");
 
-        if (email == null || !email.toLowerCase().endsWith("@my.sliit.lk")) {
+        //Validate the domain of the emails
+        if (email == null ||
+                !(email.toLowerCase().endsWith("@sliit.lk") || email.toLowerCase().endsWith("@gmail.com"))) {
             throw new UnauthorizedDomainException("Unauthorized email domain");
         }
 
+        //Avoid Null names
+        if (name == null || name.isBlank()) {
+            name = "User";
+        }
+        String finalName = name;
         // Save user if not exists
         User user = userRepository.findByEmail(email).orElseGet(() -> {
-            User newUser = new User(name, email, Collections.singletonList("ROLE_USER"), "google");
+            User newUser = new User(finalName, email, Collections.singletonList("ROLE_USER"), "google");
             User saved = userRepository.save(newUser);
 
             return saved;
