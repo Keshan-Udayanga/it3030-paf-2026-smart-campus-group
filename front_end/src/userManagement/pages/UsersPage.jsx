@@ -36,6 +36,26 @@ function UsersPage() {
     .catch(err => console.error(err));
   };
 
+  const handleDelete = async (userId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+    
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/api/v1/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      // Remove user from UI
+      setUsers(prev => prev.filter(user => user.id !== userId));
+
+    } catch (error) {
+      console.error("Error deleting user", error);
+    }
+  };
+
   return (
     <div className="users-container">
       <h2>User Management</h2>
@@ -66,15 +86,21 @@ function UsersPage() {
                 ))}
               </td>
               <td>
-                <select
-                  value={user.roles[0]}
-                  onChange={(e) => updateRole(user.id, e.target.value)}
-                >
-                  <option value="ROLE_USER">User</option>
-                  <option value="ROLE_RESOURCE_MANAGER">Resource_Manager</option>
-                  <option value="ROLE_TECHNICIAN">Technician</option>
-                  <option value="ROLE_ADMIN">Admin</option>
-                </select>
+                <div className="action-group">
+
+                  <select
+                    value={user.roles[0]}
+                    onChange={(e) => updateRole(user.id, e.target.value)}
+                  >
+                    <option value="ROLE_USER">User</option>
+                    <option value="ROLE_RESOURCE_MANAGER">Resource_Manager</option>
+                    <option value="ROLE_TECHNICIAN">Technician</option>
+                    <option value="ROLE_ADMIN">Admin</option>
+                  </select>
+                  <button className="btn-delete" disabled={user.roles.includes("ROLE_ADMIN")} onClick={() => handleDelete(user.id)}>
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

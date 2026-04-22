@@ -165,6 +165,50 @@
   background: rgba(16, 185, 129, 0.2);
   color: #34d399;
 }
+
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* DELETE BUTTON */
+.btn-delete {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: none;
+  padding: 8px 14px;
+  margin-left: 8px;
+  border-radius: 20px;
+
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: 0.3s ease;
+
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* HOVER EFFECT */
+.btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.5);
+  background: linear-gradient(135deg, #f87171, #ef4444);
+}
+
+/* CLICK EFFECT */
+.btn-delete:active {
+  transform: scale(0.96);
+}
+
+/* DISABLED STATE (optional but smart) */
+.btn-delete:disabled {
+  background: #64748b;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .users-table th,
