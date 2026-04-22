@@ -1,12 +1,16 @@
 package smart_campus.back_end.resources.DTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
 
 @Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResourceDTO {
 
     private String id;
