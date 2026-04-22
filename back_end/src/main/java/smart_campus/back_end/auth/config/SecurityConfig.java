@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import smart_campus.back_end.auth.exception.UnauthorizedDomainException;
 import smart_campus.back_end.auth.service.CustomOAuth2UserService;
 import smart_campus.back_end.auth.service.JWTAuthenticationFilter;
 import smart_campus.back_end.auth.service.OAuth2SuccessHandler;
@@ -58,9 +59,13 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2SuccessHandler)
                         .failureHandler((request, response, exception) -> {
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                            response.setContentType("application/json");
-                            response.getWriter().write("{\"error\": \"Access denied. Use a valid SLIIT email.\"}");
+                            String redirectUrl = "http://localhost:3000/login?error=access_denied";
+
+                            if (exception instanceof UnauthorizedDomainException) {
+                                redirectUrl = "http://localhost:3000/login?error=invalid_domain";
+                            }
+
+                            response.sendRedirect(redirectUrl);
                         })
                 );
         http.addFilterBefore(jwtAuthenticationFilter,

@@ -30,7 +30,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email"); // normalize email
         String name = oAuth2User.getAttribute("name");
 
-        if (email == null || !email.toLowerCase().endsWith("@sliit.lk")) {
+        if (email == null || !email.toLowerCase().endsWith("@my.sliit.lk")) {
             throw new UnauthorizedDomainException("Unauthorized email domain");
         }
 
