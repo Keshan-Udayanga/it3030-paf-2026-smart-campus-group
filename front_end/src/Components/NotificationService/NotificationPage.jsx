@@ -26,7 +26,7 @@ function NotificationsPage() {
 
   const markAsRead = (id) => {
     axios.put(
-      `http://localhost:8080/api/v1/notification/${id}/read`,
+      `http://localhost:8080/api/v1/notifications/${id}/read`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     )
