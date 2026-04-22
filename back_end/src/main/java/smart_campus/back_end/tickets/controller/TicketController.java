@@ -10,7 +10,7 @@ import smart_campus.back_end.tickets.service.TicketService;
 
 @RestController
 @RequestMapping("/api/v1/tickets")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000")
 public class TicketController {
 
     @Autowired
