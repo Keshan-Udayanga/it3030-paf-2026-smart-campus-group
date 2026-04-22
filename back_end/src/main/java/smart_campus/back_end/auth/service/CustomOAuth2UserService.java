@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import smart_campus.back_end.auth.exception.UnauthorizedDomainException;
 import smart_campus.back_end.auth.model.User;
 import smart_campus.back_end.auth.repository.UserRepository;
 
@@ -29,6 +30,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email"); // normalize email
         String name = oAuth2User.getAttribute("name");
 
+        if (email == null || !email.toLowerCase().endsWith("@sliit.lk")) {
+            throw new UnauthorizedDomainException("Unauthorized email domain");
+        }
 
         // Save user if not exists
         User user = userRepository.findByEmail(email).orElseGet(() -> {
