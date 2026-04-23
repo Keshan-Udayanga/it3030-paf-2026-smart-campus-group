@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Resources.css";
+import { useNavigate } from "react-router-dom";
+
+
 
 const Resources = () => {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // 🔍 Search & Filter
   const [searchTerm, setSearchTerm] = useState("");
   const [timeFrom, setTimeFrom] = useState("");
   const [timeTo, setTimeTo] = useState("");
 
+  
   // 🔥 TEMP BOOKINGS (replace with backend later)
   const bookings = [
     {
@@ -171,8 +176,13 @@ const Resources = () => {
                         <td>
                           <div className="action-buttons">
                             <button
+                              type="button"
                               className="btn-book"
                               disabled={status === "inactive"}
+                              onClick={() => {
+                                console.log("BOOK CLICKED");
+                                navigate(`/create-booking/${resourceId}`);
+                              }}
                             >
                               Book
                             </button>
