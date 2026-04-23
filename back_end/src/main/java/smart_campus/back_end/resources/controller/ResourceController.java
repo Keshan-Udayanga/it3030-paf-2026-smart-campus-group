@@ -52,4 +52,13 @@ public class ResourceController {
         services.deleteResource(id);
         return "Deleted successfully";
     }
+
+    // UPDATE
+    @PutMapping("/{id}")
+    public ResourceDTO updateResource(
+            @PathVariable String id,
+            @RequestBody ResourceDTO resourceDTO
+    ) {
+        return services.updateResource(id, resourceDTO);
+    }
 }

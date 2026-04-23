@@ -81,7 +81,8 @@ function UpdateResource() {
                             >
                                 <option value="LECTURE_HALL">Lecture Hall</option>
                                 <option value="LAB">Lab</option>
-                                <option value="AUDITORIUM">Auditorium</option>
+                                <option value="MEETING_ROOM">Meeting Room</option>
+                                <option value="EQUIPMENT">Equipment</option>
                             </select>
                         </div>
                     </div>
@@ -117,7 +118,7 @@ function UpdateResource() {
                             onChange={handleChange}
                         >
                             <option value="ACTIVE">Active</option>
-                            <option value="INACTIVE">Inactive</option>
+                            <option value="OUT_OF_SERVICE">Out of Service</option>
                         </select>
                     </div>
 

@@ -45,4 +45,22 @@ public class ResourceServices{
         resourceRepo.deleteById(id);
     }
 
+    // UPDATE
+    public ResourceDTO updateResource(String id, ResourceDTO dto) {
+
+        Resource existing = resourceRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Resource not found"));
+
+        // update fields from DTO
+        existing.setName(dto.getName());
+        existing.setType(dto.getType());
+        existing.setCapacity(dto.getCapacity());
+        existing.setLocation(dto.getLocation());
+        existing.setStatus(dto.getStatus());
+
+        Resource updated = resourceRepo.save(existing);
+
+        return resourceMapper.toDTO(updated);
+    }
+
 }
