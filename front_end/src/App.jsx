@@ -11,7 +11,7 @@ import UsersPage from './userManagement/pages/UsersPage';
 import AdminLayout from './userManagement/pages/AdminLayout';
 import NotificationsPage from './Components/NotificationService/NotificationPage';
 import ResourceManagementDashboard from './Components/ResourceManagement/Dashnoard/ResourceManagerDashboard';
-import AddResource from './Components/ResourceManagement/AddResource';
+import AddResource from './Components/ResourceManagement/Dashnoard/AddResource';
 import ResourcesList from "./Components/ResourceManagement/Dashnoard/ResourcesList";
 
 function App() {
