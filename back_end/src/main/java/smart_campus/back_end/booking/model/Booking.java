@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Data
 @NoArgsConstructor
@@ -25,8 +24,8 @@ public class Booking {
     private String userId;
 
     private LocalDate bookingDate;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
 
     private String purpose;
     private Integer expectedAttendees;

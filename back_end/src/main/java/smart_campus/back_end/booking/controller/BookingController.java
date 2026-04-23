@@ -22,8 +22,7 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<BookingResponse> createBooking(@Valid @RequestBody CreateBookingRequest request) {
-        BookingResponse response = bookingService.createBooking(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(request));
     }
 
     @GetMapping
@@ -42,8 +41,10 @@ public class BookingController {
     }
 
     @PatchMapping("/{id}/review")
-    public ResponseEntity<BookingResponse> reviewBooking(@PathVariable String id,
-                                                         @Valid @RequestBody ReviewBookingRequest request) {
+    public ResponseEntity<BookingResponse> reviewBooking(
+            @PathVariable String id,
+            @Valid @RequestBody ReviewBookingRequest request
+    ) {
         return ResponseEntity.ok(bookingService.reviewBooking(id, request));
     }
 

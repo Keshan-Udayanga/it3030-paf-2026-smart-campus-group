@@ -13,9 +13,7 @@ import smart_campus.back_end.booking.model.Booking;
 import smart_campus.back_end.booking.model.BookingStatus;
 import smart_campus.back_end.booking.repository.BookingRepository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -25,13 +23,13 @@ public class BookingService {
     private final BookingRepository bookingRepository;
 
     public BookingResponse createBooking(CreateBookingRequest request) {
-        validateTimeRange(request.getStartTime(), request.getEndTime());
+        validateDateTimeRange(request.getBookingDate(), request.getStartDateTime(), request.getEndDateTime());
 
         checkForConflicts(
                 request.getResourceId(),
                 request.getBookingDate(),
-                request.getStartTime(),
-                request.getEndTime(),
+                request.getStartDateTime(),
+                request.getEndDateTime(),
                 null
         );
 
@@ -39,8 +37,8 @@ public class BookingService {
                 .resourceId(request.getResourceId())
                 .userId(request.getUserId())
                 .bookingDate(request.getBookingDate())
-                .startTime(request.getStartTime())
-                .endTime(request.getEndTime())
+                .startDateTime(request.getStartDateTime())
+                .endDateTime(request.getEndDateTime())
                 .purpose(request.getPurpose())
                 .expectedAttendees(request.getExpectedAttendees())
                 .status(BookingStatus.PENDING)
@@ -92,20 +90,20 @@ public class BookingService {
             checkForConflicts(
                     booking.getResourceId(),
                     booking.getBookingDate(),
-                    booking.getStartTime(),
-                    booking.getEndTime(),
+                    booking.getStartDateTime(),
+                    booking.getEndDateTime(),
                     booking.getId()
             );
 
             booking.setStatus(BookingStatus.APPROVED);
             booking.setAdminReason(null);
-
         } else {
             booking.setStatus(BookingStatus.REJECTED);
             booking.setAdminReason(request.getAdminReason());
         }
 
         booking.setUpdatedAt(LocalDateTime.now());
+
         Booking updatedBooking = bookingRepository.save(booking);
         return BookingMapper.toResponse(updatedBooking);
     }
@@ -136,29 +134,40 @@ public class BookingService {
         bookingRepository.delete(booking);
     }
 
-    private void validateTimeRange(LocalTime startTime, LocalTime endTime) {
-        if (!startTime.isBefore(endTime)) {
-            throw new BadRequestException("Start time must be before end time");
+    private void validateDateTimeRange(java.time.LocalDate bookingDate,
+                                       LocalDateTime startDateTime,
+                                       LocalDateTime endDateTime) {
+
+        if (!startDateTime.isBefore(endDateTime)) {
+            throw new BadRequestException("End date and time must be after start date and time");
+        }
+
+        if (startDateTime.toLocalDate().isBefore(java.time.LocalDate.now())) {
+            throw new BadRequestException("Start date and time cannot be in the past");
+        }
+
+        if (!startDateTime.toLocalDate().equals(bookingDate) || !endDateTime.toLocalDate().equals(bookingDate)) {
+            throw new BadRequestException("Booking date must match start and end date");
         }
     }
 
     private void checkForConflicts(String resourceId,
-                                   LocalDate bookingDate,
-                                   LocalTime newStartTime,
-                                   LocalTime newEndTime,
+                                   java.time.LocalDate bookingDate,
+                                   LocalDateTime newStartDateTime,
+                                   LocalDateTime newEndDateTime,
                                    String currentBookingId) {
 
         List<Booking> sameDayBookings = bookingRepository.findByResourceIdAndBookingDate(resourceId, bookingDate);
 
         boolean hasConflict = sameDayBookings.stream()
                 .filter(existingBooking ->
-                        currentBookingId == null  ||!existingBooking.getId().equals(currentBookingId))
+                        currentBookingId == null || !existingBooking.getId().equals(currentBookingId))
                 .filter(existingBooking ->
                         existingBooking.getStatus() == BookingStatus.PENDING ||
-                existingBooking.getStatus() == BookingStatus.APPROVED)
+                                existingBooking.getStatus() == BookingStatus.APPROVED)
                 .anyMatch(existingBooking ->
-                        newStartTime.isBefore(existingBooking.getEndTime()) &&
-                                newEndTime.isAfter(existingBooking.getStartTime()));
+                        newStartDateTime.isBefore(existingBooking.getEndDateTime()) &&
+                                newEndDateTime.isAfter(existingBooking.getStartDateTime()));
 
         if (hasConflict) {
             throw new ConflictException("This resource already has a booking in the selected time range");
