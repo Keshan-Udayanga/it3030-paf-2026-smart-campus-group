@@ -13,6 +13,7 @@ import NotificationsPage from './Components/NotificationService/NotificationPage
 import ResourceManagementDashboard from './Components/ResourceManagement/Dashnoard/ResourceManagerDashboard';
 import AddResource from './Components/ResourceManagement/Dashnoard/AddResource';
 import ResourcesList from "./Components/ResourceManagement/Dashnoard/ResourcesList";
+import UpdateResource from "./Components/ResourceManagement/Dashnoard/UpdateResource";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="resource-management" element={<ResourceManagementDashboard />} />
             <Route path="add-resource" element={<AddResource />} />
             <Route path="/admin/resources-list" element={<ResourcesList />} />
+            <Route path="/admin/update-resource/:id" element={<UpdateResource />} />
           </Route>
           <Route path="/notifications" element={<NotificationsPage />} />
         </Routes>
