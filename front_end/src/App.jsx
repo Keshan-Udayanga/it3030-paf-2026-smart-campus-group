@@ -15,6 +15,7 @@ import AddResource from './Components/ResourceManagement/Dashnoard/AddResource';
 import ResourcesList from "./Components/ResourceManagement/Dashnoard/ResourcesList";
 import UpdateResource from "./Components/ResourceManagement/Dashnoard/UpdateResource";
 import Services from './Components/Services/Services';
+import Contact from './Components/Contact/Contact';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin" element={<AdminLayout />}>
