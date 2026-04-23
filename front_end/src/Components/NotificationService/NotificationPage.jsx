@@ -6,6 +6,12 @@ function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const token = localStorage.getItem("token");
   const [filter, setFilter] = useState("ALL");
+  const [preferences, setPreferences] = useState({
+    bookingEnabled: true,
+    ticketEnabled: true,
+    commentEnabled: true,
+    roleChangedEnabled: true
+  });
 
   const filteredNotifications = notifications.filter(n => {
         if (filter === "UNREAD") return !n.isRead;
@@ -14,6 +20,7 @@ function NotificationsPage() {
 
   useEffect(() => {
     fetchNotifications();
+    fetchPreferences();
   }, []);
 
   const fetchNotifications = () => {
@@ -34,9 +41,73 @@ function NotificationsPage() {
     .catch(err => console.error(err));
   };
 
+  const fetchPreferences = () => {
+    axios.get("http://localhost:8080/api/v1/notifications/preferences", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => setPreferences(res.data))
+    .catch(err => console.error(err));
+  };
+
+  const handleToggle = (field) => {
+    const updated = {
+      ...preferences,
+      [field]: !preferences[field]
+    };
+
+    setPreferences(updated);
+
+    axios.put(
+      "http://localhost:8080/api/v1/notifications/preferences",
+      updated,
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .catch(err => console.error(err));
+  };
+
   return (
     <div className="notifications-page">
       <h2>Notifications</h2>
+
+      <div className="preferences-panel">
+        <h3>Notification Settings</h3>
+
+        <label>
+          <input
+            type="checkbox"
+            checked={preferences.bookingEnabled}
+            onChange={() => handleToggle("bookingEnabled")}
+          />
+          Booking
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            checked={preferences.ticketEnabled}
+            onChange={() => handleToggle("ticketEnabled")}
+          />
+          Ticket Updates
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            checked={preferences.commentEnabled}
+            onChange={() => handleToggle("commentEnabled")}
+          />
+          Comments
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            checked={preferences.roleChangedEnabled}
+            onChange={() => handleToggle("roleChangedEnabled")}
+          />
+          Role Changes
+        </label>
+      </div>
 
       <div className="notification-filters">
         <button 
