@@ -102,7 +102,10 @@ function ResourceDashboard() {
         {/* CARDS */}
         <div className="admin-cards">
 
-          <div className="admin-card total">
+          <div
+            className="admin-card total clickable"
+            onClick={() => navigate("/admin/resources-list")}
+          >
             <h4>Total Resources</h4>
             <p>{stats.total}</p>
           </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NavBar from './Components/NavBar/NavBar';
 import Footer from './Components/Footer/Footer';
-import Home from './Components/HomePage/Home';  
+import Home from './Components/HomePage/Home';
 import Resources from './Components/ResourceManagement/Resources';
 import LoginPage from './userManagement/pages/LoginPage';
 import AdminDashboard from './userManagement/pages/AdminDashboard';
@@ -12,28 +12,30 @@ import AdminLayout from './userManagement/pages/AdminLayout';
 import NotificationsPage from './Components/NotificationService/NotificationPage';
 import ResourceManagementDashboard from './Components/ResourceManagement/Dashnoard/ResourceManagerDashboard';
 import AddResource from './Components/ResourceManagement/AddResource';
+import ResourcesList from "./Components/ResourceManagement/Dashnoard/ResourcesList";
 
 function App() {
   return (
     <div>
       <BrowserRouter>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/resources" element={<Resources />} />
-        <Route path="/user-dashboard" element={<UserDashboard />} />
-        <Route path="/login" element={<LoginPage/>} />
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users" element={<UsersPage />} />
-          <Route path="resource-management" element={<ResourceManagementDashboard />} />
-          <Route path="add-resource" element={<AddResource />} />
-        </Route>
-        <Route path="/notifications" element={<NotificationsPage />} />
-      </Routes>
-      <Footer />
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/resources" element={<Resources />} />
+          <Route path="/user-dashboard" element={<UserDashboard />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="resource-management" element={<ResourceManagementDashboard />} />
+            <Route path="add-resource" element={<AddResource />} />
+            <Route path="/admin/resources-list" element={<ResourcesList />} />
+          </Route>
+          <Route path="/notifications" element={<NotificationsPage />} />
+        </Routes>
+        <Footer />
       </BrowserRouter>
-      
+
     </div>
   );
 }
