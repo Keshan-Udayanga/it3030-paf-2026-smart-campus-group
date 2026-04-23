@@ -88,7 +88,9 @@ select:focus {
 
 .btn-submit:hover {
   background: var(--primary-dark);
-}.add-resource-page {
+}
+
+.add-resource-page {
   padding: 40px;
   display: flex;
   justify-content: center;
@@ -121,7 +123,8 @@ select:focus {
 /* Grid Layout */
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 🔥 2 columns */
+  grid-template-columns: 1fr 1fr;
+  /* 🔥 2 columns */
   gap: 20px;
 }
 
@@ -185,6 +188,23 @@ select:focus {
   font-weight: 600;
 }
 
+.input-error {
+  border: 1px solid #ef4444 !important;
+  box-shadow: 0 0 5px rgba(239, 68, 68, 0.3);
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+/* optional better UX */
+.btn-submit:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .add-resource-page {
     padding: 20px;
@@ -195,7 +215,8 @@ select:focus {
   }
 
   .form-grid {
-    grid-template-columns: 1fr; /* 🔥 mobile → single column */
+    grid-template-columns: 1fr;
+    /* 🔥 mobile → single column */
   }
 
   .full-width {

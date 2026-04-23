@@ -80,7 +80,7 @@ const Resources = () => {
   const filteredResources = resources.filter((res) => {
     const matchesSearch =
       res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      res.location.toLowerCase().includes(searchTerm.toLowerCase());
+      res.type.toLowerCase().includes(searchTerm.toLowerCase());
 
     const available = isAvailable(res.id, timeFrom, timeTo);
 
@@ -92,7 +92,6 @@ const Resources = () => {
       <div className="container">
         <div className="header-actions">
           <h2 className="page-title">Resources Catalogue</h2>
-          <button className="btn-primary">+ Add New Resource</button>
         </div>
 
         {/* 🔍 SEARCH & FILTER */}
@@ -100,7 +99,7 @@ const Resources = () => {
           <div className="search-box">
             <input
               type="text"
-              placeholder="Search ..."
+              placeholder="Search resource name or type ..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -171,8 +170,6 @@ const Resources = () => {
                             <button className="btn-book" disabled={!available}>
                               Book
                             </button>
-                            <button className="btn-edit">Edit</button>
-                            <button className="btn-delete">Delete</button>
                           </div>
                         </td>
                       </tr>
