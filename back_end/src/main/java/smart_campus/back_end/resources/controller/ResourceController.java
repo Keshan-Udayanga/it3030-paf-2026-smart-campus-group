@@ -12,6 +12,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("api/resources")

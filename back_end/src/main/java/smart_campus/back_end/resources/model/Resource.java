@@ -1,6 +1,5 @@
 package smart_campus.back_end.resources.model;
 
-import java.time.LocalTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
