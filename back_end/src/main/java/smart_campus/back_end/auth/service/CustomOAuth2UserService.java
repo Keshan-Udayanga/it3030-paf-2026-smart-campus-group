@@ -28,7 +28,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         String email = oAuth2User.getAttribute("email"); // normalize email
         String name = oAuth2User.getAttribute("name");
-        System.out.println(email);
 
 
         // Save user if not exists

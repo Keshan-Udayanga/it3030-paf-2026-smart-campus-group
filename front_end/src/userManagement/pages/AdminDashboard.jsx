@@ -8,7 +8,6 @@ function AdminDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    
 
     axios.get("http://localhost:8080/api/v1/auth/me", {
       headers: { Authorization: `Bearer ${token}` }
@@ -27,8 +26,7 @@ function AdminDashboard() {
     headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => setUserCount(res.data))
-    .catch(err => {console.error(err)
-    });
+    .catch(err => console.error(err));
 
   }, []);
 
