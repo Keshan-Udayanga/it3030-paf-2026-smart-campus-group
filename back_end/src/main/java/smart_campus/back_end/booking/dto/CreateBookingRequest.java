@@ -30,7 +30,6 @@ public class CreateBookingRequest {
     @NotBlank(message = "Purpose is required")
     private String purpose;
 
-    @NotNull(message = "Expected attendees is required")
     @Min(value = 1, message = "Expected attendees must be at least 1")
     @Max(value = 1000, message = "Expected attendees cannot exceed 1000")
     private Integer expectedAttendees;

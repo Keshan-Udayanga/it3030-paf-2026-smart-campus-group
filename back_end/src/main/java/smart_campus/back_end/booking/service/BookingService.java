@@ -23,7 +23,6 @@ public class BookingService {
     private final BookingRepository bookingRepository;
 
     public BookingResponse createBooking(CreateBookingRequest request) {
-        validateDateTimeRange(request.getBookingDate(), request.getStartDateTime(), request.getEndDateTime());
 
         checkForConflicts(
                 request.getResourceId(),
@@ -134,22 +133,7 @@ public class BookingService {
         bookingRepository.delete(booking);
     }
 
-    private void validateDateTimeRange(java.time.LocalDate bookingDate,
-                                       LocalDateTime startDateTime,
-                                       LocalDateTime endDateTime) {
 
-        if (!startDateTime.isBefore(endDateTime)) {
-            throw new BadRequestException("End date and time must be after start date and time");
-        }
-
-        if (startDateTime.toLocalDate().isBefore(java.time.LocalDate.now())) {
-            throw new BadRequestException("Start date and time cannot be in the past");
-        }
-
-        if (!startDateTime.toLocalDate().equals(bookingDate) || !endDateTime.toLocalDate().equals(bookingDate)) {
-            throw new BadRequestException("Booking date must match start and end date");
-        }
-    }
 
     private void checkForConflicts(String resourceId,
                                    java.time.LocalDate bookingDate,
