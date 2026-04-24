@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8080/api/bookings";
+const API_BASE_URL = "http://localhost:8082/api/bookings";
 
 export const createBooking = async (bookingData) => {
   const response = await axios.post(API_BASE_URL, bookingData);

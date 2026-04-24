@@ -7,6 +7,7 @@ import Resources from './Components/ResourceManagement/Resources';
 import CreateBooking from './Components/BookingManagement/BookingForm';
 import BookingForm from './Components/BookingManagement/BookingForm';
 import MyBookings from "./Components/BookingManagement/MyBookings";
+import AdminBookings from "./Components/BookingManagement/AdminBookings";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/resources" element={<Resources />} />
         <Route path="/create-booking/:id" element={<BookingForm />} />
         <Route path="/my-bookings" element={<MyBookings />} />
+        <Route path="/admin-bookings" element={<AdminBookings />} />
       </Routes>
 
       <Footer />

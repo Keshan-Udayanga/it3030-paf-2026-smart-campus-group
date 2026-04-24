@@ -63,7 +63,7 @@ const Resources = () => {
   const fetchResources = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8082/api/resources");
+      const res = await axios.get("http://localhost:8080/api/resources");
       setResources(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error fetching resources:", err);

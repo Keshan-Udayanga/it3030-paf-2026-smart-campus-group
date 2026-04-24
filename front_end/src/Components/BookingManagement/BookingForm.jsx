@@ -1,296 +1,217 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 import "./BookingForm.css";
-import { createBooking } from "./BookingAPI";
 
-// ✅ LOCAL DATE (Sri Lanka fix)
+// LOCAL DATE (Sri Lanka fix)
 const getLocalDate = () => {
-  const now = new Date();
-  const offset = now.getTimezoneOffset() * 60000;
-  return new Date(now - offset).toISOString().split("T")[0];
-};
-
-const getLocalDateTime = () => {
-  const now = new Date();
-  const offset = now.getTimezoneOffset() * 60000;
-  return new Date(now - offset).toISOString().slice(0, 16);
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    return new Date(now - offset).toISOString().split("T")[0];
 };
 
 function BookingForm() {
+    const { id } = useParams();
+    const userId = "USER001";
 
-  const { id } = useParams(); // 🔥 resourceId from URL
-  const userId = "USER001";   // 🔥 replace with login later
+    const today = getLocalDate();
 
-  const today = getLocalDate();
-  const nowDateTime = getLocalDateTime();
+    const initialState = {
+        resourceId: id || "",
+        userId: userId,
+        bookingDate: today,
+        startDateTime: "",
+        endDateTime: "",
+        purpose: "",
+        expectedAttendees: "" // ✅ OPTIONAL (NOT REQUIRED)
+    };
 
-  const initialState = {
-    resourceId: id || "",
-    userId: userId,
-    bookingDate: today,
-    startDateTime: "",
-    endDateTime: "",
-    purpose: "",
-    expectedAttendees: ""
-  };
+    const [formData, setFormData] = useState(initialState);
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState(initialState);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState({});
+    // ---------------- HANDLE CHANGE ----------------
+    const handleChange = (e) => {
+        const { name, value } = e.target;
 
-  // ---------------- VALIDATE FIELD ----------------
-  const validateField = useCallback((name, value) => {
-    switch (name) {
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value
+        }));
+    };
 
-      case "expectedAttendees":
-        if (value && (Number(value) < 1 || Number(value) > 1000)) {
-          return "Attendees must be between 1 and 1000";
+    // ---------------- RESET ----------------
+    const resetForm = () => {
+        setFormData(initialState);
+        setMessage("");
+        setError("");
+    };
+
+    // ---------------- SUBMIT ----------------
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        setMessage("");
+        setError("");
+        setLoading(true);
+
+        try {
+
+            const now = new Date();
+
+            const start = new Date(formData.startDateTime);
+            const end = new Date(formData.endDateTime);
+
+            // ❌ past date restriction
+            if (start < now) {
+                setError("Start date/time cannot be in the past");
+                setLoading(false);
+                return;
+            }
+
+            if (end < now) {
+                setError("End date/time cannot be in the past");
+                setLoading(false);
+                return;
+            }
+
+            const payload = {
+                resourceId: id,
+                userId: userId,
+                bookingDate: formData.startDateTime.split("T")[0],
+                startDateTime: formData.startDateTime,
+                endDateTime: formData.endDateTime,
+                purpose: formData.purpose,
+                expectedAttendees: formData.expectedAttendees
+                    ? Number(formData.expectedAttendees)
+                    : null // ✅ optional now
+            };
+
+            await axios.post(
+                "http://localhost:8080/api/bookings",
+                payload,
+                {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            setMessage("🎉 Booking created successfully!");
+            setFormData(initialState);
+
+        } catch (err) {
+            setError(err.response?.data?.message || "Booking failed");
+        } finally {
+            setLoading(false);
         }
-        return "";
+    };
 
-      case "startDateTime":
-        if (value) {
-          const selected = new Date(value);
-          const now = new Date(getLocalDateTime());
-          if (selected < now) {
-            return "Start time cannot be in the past";
-          }
-        }
-        return "";
+    // ---------------- UI ----------------
+    return (
+        <div className="booking-form-page">
+            <div className="booking-form-card">
 
-      case "endDateTime":
-        if (formData.startDateTime && value) {
-          if (new Date(formData.startDateTime) >= new Date(value)) {
-            return "End time must be after start time";
-          }
-        }
-        return "";
+                <div className="form-header">
+                    <h2>📅 Book a Resource</h2>
+                    <p className="booking-subtitle">Submit booking request</p>
+                </div>
 
-      default:
-        return "";
-    }
-  }, [formData.startDateTime]);
+                {message && <div className="booking-success">{message}</div>}
+                {error && <div className="booking-error">{error}</div>}
 
-  // ---------------- HANDLE CHANGE ----------------
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target;
+                <form onSubmit={handleSubmit} className="booking-form">
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+                    <div className="booking-grid">
 
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  }, [fieldErrors]);
+                        <div className="form-group">
+                            <label>Resource ID</label>
+                            <input value={formData.resourceId} readOnly />
+                        </div>
 
-  // ---------------- BLUR VALIDATION ----------------
-  const handleBlur = useCallback((e) => {
-    const { name, value } = e.target;
-    const err = validateField(name, value);
+                        <div className="form-group">
+                            <label>User ID</label>
+                            <input value={formData.userId} readOnly />
+                        </div>
 
-    if (err) {
-      setFieldErrors((prev) => ({ ...prev, [name]: err }));
-    }
-  }, [validateField]);
+                        <div className="form-group">
+                            <label>Booking Date</label>
+                            <input type="date" value={formData.bookingDate} readOnly />
+                        </div>
 
-  // ---------------- FULL VALIDATION ----------------
-  const validateForm = useCallback(() => {
-    const errors = {};
+                        {/* ❌ past disable via min */}
+                        <div className="form-group">
+                            <label>Start Date & Time</label>
+                            <input
+                                type="datetime-local"
+                                name="startDateTime"
+                                value={formData.startDateTime}
+                                onChange={handleChange}
+                                min={new Date().toISOString().slice(0, 16)}
+                            />
+                        </div>
 
-    const requiredFields = [
-      "resourceId",
-      "userId",
-      "bookingDate",
-      "startDateTime",
-      "endDateTime",
-      "purpose",
-      "expectedAttendees"
-    ];
+                        <div className="form-group">
+                            <label>End Date & Time</label>
+                            <input
+                                type="datetime-local"
+                                name="endDateTime"
+                                value={formData.endDateTime}
+                                onChange={handleChange}
+                                min={formData.startDateTime || new Date().toISOString().slice(0, 16)}
+                            />
+                        </div>
 
-    requiredFields.forEach((field) => {
-      if (!formData[field]) {
-        errors[field] = `${field} is required`;
-      }
-    });
+                        {/* ✅ expectedAttendees NOW OPTIONAL */}
+                        <div className="form-group">
+                            <label>Expected Attendees</label>
+                            <input
+                                type="number"
+                                name="expectedAttendees"
+                                value={formData.expectedAttendees}
+                                onChange={handleChange}
+                                placeholder="Optional"
+                                required={false}
+                            />
+                        </div>
 
-    const now = new Date(getLocalDateTime());
+                    </div>
 
-    if (formData.startDateTime) {
-      if (new Date(formData.startDateTime) < now) {
-        errors.startDateTime = "Start time cannot be in the past";
-      }
-    }
+                    <div className="booking-full-width">
+                        <label>Purpose</label>
+                        <textarea
+                            name="purpose"
+                            value={formData.purpose}
+                            onChange={handleChange}
+                        />
+                    </div>
 
-    if (formData.startDateTime && formData.endDateTime) {
-      if (new Date(formData.endDateTime) <= new Date(formData.startDateTime)) {
-        errors.endDateTime = "End time must be after start time";
-      }
-    }
+                    <div className="booking-form-actions">
 
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
+                        <button
+                            type="button"
+                            className="booking-reset-btn"
+                            onClick={resetForm}
+                            disabled={loading}
+                        >
+                            Reset Form
+                        </button>
 
-  }, [formData]);
+                        <button
+                            type="submit"
+                            className="booking-submit-btn"
+                            disabled={loading}
+                        >
+                            {loading ? "Submitting..." : "Submit Booking"}
+                        </button>
 
-  // ---------------- RESET ----------------
-  const resetForm = useCallback(() => {
-    setFormData(initialState);
-    setFieldErrors({});
-    setMessage("");
-    setError("");
-  }, [initialState]);
+                    </div>
 
-  // ---------------- SUBMIT ----------------
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    setMessage("");
-    setError("");
-
-    if (!validateForm()) {
-      setError("Please fix errors before submitting");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const payload = {
-  resourceId: formData.resourceId,
-  userId: formData.userId,
-  bookingDate: formData.startDateTime.split("T")[0],
-  startTime: formData.startDateTime.split("T")[1] + ":00",
-  endTime: formData.endDateTime.split("T")[1] + ":00",
-  purpose: formData.purpose,
-  expectedAttendees: Number(formData.expectedAttendees)
-};
-
-      await createBooking(payload);
-
-      setMessage("🎉 Booking created successfully!");
-      resetForm();
-
-    } catch (err) {
-      console.error(err);
-      setError("Booking failed. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ---------------- UI ----------------
-  return (
-    <div className="booking-form-page">
-      <div className="booking-form-card">
-
-        <div className="form-header">
-          <h2>📅 Book a Resource</h2>
-          <p className="booking-subtitle">Submit booking request</p>
+                </form>
+            </div>
         </div>
-
-        {message && <div className="booking-success">{message}</div>}
-        {error && <div className="booking-error">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="booking-form">
-
-          <div className="booking-grid">
-
-            {/* Resource ID */}
-            <div className="form-group">
-              <label>Resource ID *</label>
-              <input value={formData.resourceId} readOnly />
-            </div>
-
-            {/* User ID */}
-            <div className="form-group">
-              <label>User ID *</label>
-              <input value={formData.userId} readOnly />
-            </div>
-
-            {/* Booking Date */}
-            <div className="form-group">
-              <label>Booking Date *</label>
-              <input type="date" value={formData.bookingDate} readOnly />
-            </div>
-
-            {/* Attendees */}
-            <div className="form-group">
-              <label>Expected Attendees *</label>
-              <input
-                type="number"
-                name="expectedAttendees"
-                value={formData.expectedAttendees}
-                onChange={handleChange}
-                min="1"
-              />
-            </div>
-
-            {/* Start */}
-            <div className="form-group">
-              <label>Start Date & Time *</label>
-              <input
-                type="datetime-local"
-                name="startDateTime"
-                value={formData.startDateTime}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                min={nowDateTime}
-              />
-            </div>
-
-            {/* End */}
-            <div className="form-group">
-              <label>End Date & Time *</label>
-              <input
-                type="datetime-local"
-                name="endDateTime"
-                value={formData.endDateTime}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                min={formData.startDateTime || nowDateTime}
-              />
-            </div>
-
-          </div>
-
-          {/* Purpose */}
-          <div className="booking-full-width">
-            <label>Purpose *</label>
-            <textarea
-              name="purpose"
-              value={formData.purpose}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* BUTTONS FIX */}
-          <div className="booking-form-actions">
-            <button
-              type="button"
-              className="booking-reset-btn"
-              onClick={resetForm}
-              disabled={loading}
-            >
-              Reset Form
-            </button>
-
-            <button
-              type="submit"
-              className="booking-submit-btn"
-              disabled={loading}
-            >
-              {loading ? "Submitting..." : "Submit Booking"}
-            </button>
-          </div>
-
-        </form>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default BookingForm;

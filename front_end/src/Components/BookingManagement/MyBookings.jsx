@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./MyBookings.css";
-import { cancelBooking, deleteBooking, getMyBookings } from "./BookingAPI";
 
 function MyBookings() {
   const navigate = useNavigate();
@@ -10,31 +10,48 @@ function MyBookings() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // 🔥 Auto load bookings (no search bar)
-  useEffect(() => {
-    loadBookings();
-  }, []);
-
+  // ---------------- LOAD BOOKINGS ----------------
   const loadBookings = async () => {
     try {
-      const data = await getMyBookings("USER001"); // 👉 change if needed
-      setBookings(data);
+      const response = await axios.get(
+        "http://localhost:8080/api/bookings/my?email=USER001"
+      );
+
+      console.log("BOOKINGS API RESPONSE:", response.data);
+
+      setBookings(response.data);
+
     } catch (err) {
-      console.error(err);
+      console.error("LOAD ERROR:", err);
       setError("Failed to load bookings.");
     }
   };
 
-  const handleCancel = async (id) => {
-    await cancelBooking(id);
+  // Auto load
+  useEffect(() => {
     loadBookings();
+  }, []);
+
+  // ---------------- ACTIONS ----------------
+  const handleCancel = async (id) => {
+    try {
+      await axios.put(`http://localhost:8080/api/bookings/cancel/${id}`);
+      loadBookings();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleDelete = async (id) => {
-    await deleteBooking(id);
-    loadBookings();
+    try {
+      await axios.delete(`http://localhost:8080/api/bookings/${id}`);
+      loadBookings();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
+  // ---------------- STATS ----------------
   const stats = useMemo(() => {
     return {
       total: bookings.length,
@@ -44,15 +61,13 @@ function MyBookings() {
     };
   }, [bookings]);
 
-  const formatDate = (d) =>
-    new Date(d).toLocaleDateString();
-
-  const formatTime = (start, end) => {
-    const s = new Date(start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    const e = new Date(end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    return `${s} - ${e}`;
+  // ---------------- FORMAT ----------------
+  const formatDateTime = (dt) => {
+    if (!dt) return "-";
+    return new Date(dt).toLocaleString();
   };
 
+  // ---------------- UI ----------------
   return (
     <div className="my-bookings-page-v2">
       <div className="my-bookings-wrapper">
@@ -63,32 +78,38 @@ function MyBookings() {
             <p>View and manage all your resource bookings</p>
           </div>
 
-          <button onClick={() => navigate("/create-booking")} className="new-booking-btn">
+          <button
+            onClick={() => navigate("/create-booking")}
+            className="new-booking-btn"
+          >
             + New Booking
           </button>
         </div>
 
-        {/* ✅ Stats */}
+        {/* ERROR */}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
+        {/* STATS */}
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="circle total-circle"><span>{stats.total}</span></div>
+            <div className="circle total-circle">{stats.total}</div>
             <p>Total</p>
           </div>
           <div className="stat-card">
-            <div className="circle pending-circle"><span>{stats.pending}</span></div>
+            <div className="circle pending-circle">{stats.pending}</div>
             <p>Pending</p>
           </div>
           <div className="stat-card">
-            <div className="circle approved-circle"><span>{stats.approved}</span></div>
+            <div className="circle approved-circle">{stats.approved}</div>
             <p>Approved</p>
           </div>
           <div className="stat-card">
-            <div className="circle rejected-circle"><span>{stats.rejected}</span></div>
+            <div className="circle rejected-circle">{stats.rejected}</div>
             <p>Rejected</p>
           </div>
         </div>
 
-        {/* ✅ TABLE */}
+        {/* TABLE */}
         <div className="booking-table-card">
           <table className="booking-table">
             <thead>
@@ -97,8 +118,8 @@ function MyBookings() {
                 <th>RESOURCE</th>
                 <th>USER</th>
                 <th>BOOKING DATE</th>
-                <th>Starting</th>
-                <th>Ending</th>
+                <th>START</th>
+                <th>END</th>
                 <th>PURPOSE</th>
                 <th>ATTENDEES</th>
                 <th>STATUS</th>
@@ -107,31 +128,42 @@ function MyBookings() {
             </thead>
 
             <tbody>
-              {bookings.map((b, i) => (
-                <tr key={b.id}>
-                  <td>#{i + 1}</td>
-                  <td>{b.resourceId}</td>
-                  <td>{b.userId}</td>
-                  <td>{formatDate(b.bookingDate)}</td>
-                  <td>{formatDate(b.startDateTime)}</td>
-                  <td>{formatTime(b.startDateTime, b.endDateTime)}</td>
-                  <td>{b.purpose}</td>
-                  <td>{b.expectedAttendees}</td>
-                  <td>
-                    <span className={`table-status status-${b.status.toLowerCase()}`}>
-                      {b.status}
-                    </span>
-                  </td>
-                  <td>
-                    {b.status === "APPROVED" && (
-                      <button className="cancel-action" onClick={() => handleCancel(b.id)}>Cancel</button>
-                    )}
-                    {b.status === "PENDING" && (
-                      <button className="delete-action" onClick={() => handleDelete(b.id)}>Delete</button>
-                    )}
-                  </td>
+              {bookings.length === 0 ? (
+                <tr>
+                  <td colSpan="10">No bookings found</td>
                 </tr>
-              ))}
+              ) : (
+                bookings.map((b, i) => (
+                  <tr key={b.id}>
+                    <td>#{i + 1}</td>
+                    <td>{b.resourceId}</td>
+                    <td>{b.userId}</td>
+                    <td>{formatDateTime(b.bookingDate)}</td>
+                    <td>{formatDateTime(b.startDateTime)}</td>
+                    <td>{formatDateTime(b.endDateTime)}</td>
+                    <td>{b.purpose}</td>
+                    <td>{b.expectedAttendees ?? "-"}</td>
+                    <td>
+                      <span className={`status-${(b.status || "").toLowerCase()}`}>
+                        {b.status}
+                      </span>
+                    </td>
+                    <td>
+                      {b.status === "APPROVED" && (
+                        <button onClick={() => handleCancel(b.id)}>
+                          Cancel
+                        </button>
+                      )}
+
+                      {b.status === "PENDING" && (
+                        <button onClick={() => handleDelete(b.id)}>
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
