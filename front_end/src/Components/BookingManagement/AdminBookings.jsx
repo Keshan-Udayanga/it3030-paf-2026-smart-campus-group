@@ -8,8 +8,11 @@ function AdminBookings() {
   const [resources, setResources] = useState({});
   const [rejectReasons, setRejectReasons] = useState({});
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState("ALL");
 
   const token = localStorage.getItem("token");
+  const userRole = localStorage.getItem("role");   // 🔥 NEW
+  const userId = localStorage.getItem("userId");   // 🔥 NEW
 
   // ---------------- DATE FIX ----------------
   const formatDate = (dateString) => {
@@ -27,19 +30,20 @@ function AdminBookings() {
     });
   };
 
-  const formatDatePart = (dateString) => {
-    if (!dateString) return "-";
-    const d = new Date(dateString);
-    const offset = d.getTimezoneOffset() * 60000;
-    return new Date(d - offset).toISOString().split("T")[0];
-  };
-
   // ---------------- LOAD BOOKINGS ----------------
   const loadBookings = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/bookings", {
+      let url = "http://localhost:8080/api/bookings";
+
+      // 👤 USER → only own bookings
+      if (userRole !== "ROLE_ADMIN") {
+        url += `?userId=${userId}`;
+      }
+
+      const res = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       setBookings(res.data || []);
     } catch (err) {
       console.log("Booking load error", err);
@@ -73,138 +77,42 @@ function AdminBookings() {
     );
   }, []);
 
-  // ---------------- APPROVE ----------------
+  // ---------------- FILTER ----------------
+  const filteredBookings = bookings.filter((b) => {
+    if (filter === "ALL") return true;
+    return b.status === filter;
+  });
+
+  // ---------------- ACTIONS ----------------
   const handleApprove = async (id) => {
-    const result = await Swal.fire({
-      title: "Approve Booking?",
-      text: "Status will be changed to APPROVED",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#10b981",
-      cancelButtonColor: "#6b7280",
-      confirmButtonText: "Yes, Approve",
-    });
-
-    if (!result.isConfirmed) return;
-
-    try {
-      await axios.patch(
-        `http://localhost:8080/api/bookings/${id}/review`,
-        { decision: "APPROVED" },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      await Swal.fire({
-        icon: "success",
-        title: "Approved!",
-        text: "Booking approved successfully",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-
-      loadBookings();
-    } catch (err) {
-      console.log("Approve error", err);
-
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to approve booking",
-      });
-    }
+    await axios.patch(
+      `http://localhost:8080/api/bookings/${id}/review`,
+      { decision: "APPROVED" },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    loadBookings();
   };
 
-  // ---------------- REJECT ----------------
   const handleReject = async (id) => {
     const reason = rejectReasons[id] || "No reason provided";
 
-    const result = await Swal.fire({
-      title: "Reject Booking?",
-      text: `Reason: ${reason}`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#ef4444",
-      cancelButtonColor: "#6b7280",
-      confirmButtonText: "Yes, Reject",
-    });
+    await axios.patch(
+      `http://localhost:8080/api/bookings/${id}/review`,
+      {
+        decision: "REJECTED",
+        adminReason: reason,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-    if (!result.isConfirmed) return;
-
-    try {
-      await axios.patch(
-        `http://localhost:8080/api/bookings/${id}/review`,
-        {
-          decision: "REJECTED",
-          adminReason: reason,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      await Swal.fire({
-        icon: "success",
-        title: "Rejected!",
-        text: "Booking rejected successfully",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-
-      loadBookings();
-    } catch (err) {
-      console.log("Reject error", err);
-
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to reject booking",
-      });
-    }
+    loadBookings();
   };
 
-  // ---------------- DELETE ----------------
   const handleDelete = async (id) => {
-    const result = await Swal.fire({
-      title: "Delete Booking?",
-      text: "This action cannot be undone!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#111827",
-      cancelButtonColor: "#6b7280",
-      confirmButtonText: "Yes, Delete",
+    await axios.delete(`http://localhost:8080/api/bookings/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-
-    if (!result.isConfirmed) return;
-
-    try {
-      await axios.delete(
-        `http://localhost:8080/api/bookings/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      await Swal.fire({
-        icon: "success",
-        title: "Deleted!",
-        text: "Booking deleted successfully",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-
-      loadBookings();
-    } catch (err) {
-      console.log("Delete error", err);
-
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to delete booking",
-      });
-    }
+    loadBookings();
   };
 
   const handleReasonChange = (id, value) => {
@@ -234,7 +142,32 @@ function AdminBookings() {
     <div className="admin-bookings-page">
       <div className="admin-bookings-container">
 
-        <h2 className="title">🛠️ Admin Booking Review</h2>
+        <h2 className="title">
+          {userRole === "ROLE_ADMIN"
+            ? "🛠️ Admin Booking Review"
+            : "📋 My Bookings"}
+        </h2>
+
+        {/* 🔥 FILTER BUTTONS */}
+        <div className="filter-buttons">
+
+          <button className={filter === "ALL" ? "active-filter" : ""} onClick={() => setFilter("ALL")}>
+            All
+          </button>
+
+          <button className={filter === "PENDING" ? "active-filter" : ""} onClick={() => setFilter("PENDING")}>
+            Pending
+          </button>
+
+          <button className={filter === "APPROVED" ? "active-filter" : ""} onClick={() => setFilter("APPROVED")}>
+            Approved
+          </button>
+
+          <button className={filter === "REJECTED" ? "active-filter" : ""} onClick={() => setFilter("REJECTED")}>
+            Rejected
+          </button>
+
+        </div>
 
         {loading ? (
           <p>Loading...</p>
@@ -246,35 +179,29 @@ function AdminBookings() {
                 <th>ID</th>
                 <th>Resource</th>
                 <th>User</th>
-                <th>Booking Date</th>
-                <th>Start Date</th>
-                <th>Start Time</th>
-                <th>End Date</th>
-                <th>End Time</th>
+                <th>Date</th>
+                <th>Start</th>
+                <th>End</th>
                 <th>Purpose</th>
               </tr>
             </thead>
 
             <tbody>
-              {bookings.map((b, i) => (
+              {filteredBookings.map((b, i) => (
                 <React.Fragment key={b.id || i}>
 
-                  {/* ROW 1 */}
                   <tr className="main-row">
                     <td>{i + 1}</td>
                     <td>{resources[b.resourceId] || "Loading..."}</td>
                     <td>{b.userId}</td>
                     <td>{formatDate(b.bookingDate)}</td>
-                    <td>{formatDatePart(b.startDateTime)}</td>
                     <td>{formatTimePart(b.startDateTime)}</td>
-                    <td>{formatDatePart(b.endDateTime)}</td>
                     <td>{formatTimePart(b.endDateTime)}</td>
                     <td>{b.purpose}</td>
                   </tr>
 
-                  {/* ROW 2 */}
                   <tr className="detail-row">
-                    <td colSpan="9">
+                    <td colSpan="7">
 
                       <div className="detail-box">
 
@@ -300,40 +227,28 @@ function AdminBookings() {
                           )}
                         </div>
 
-                        {/* ✅ UPDATED ACTIONS */}
-                        <div>
-                          <strong>Actions:</strong>{" "}
+                        {/* 🔥 ROLE BASED ACTIONS */}
+                        {userRole === "ROLE_ADMIN" && (
+                          <div className="admin-actions">
 
-                          {b.status === "PENDING" && (
-                            <div className="admin-actions">
+                            {b.status === "PENDING" ? (
+                              <>
+                                <button className="approve-btn" onClick={() => handleApprove(b.id)}>
+                                  Approve
+                                </button>
 
-                              <button
-                                className="approve-btn"
-                                onClick={() => handleApprove(b.id)}
-                              >
-                                Approve
+                                <button className="reject-btn" onClick={() => handleReject(b.id)}>
+                                  Reject
+                                </button>
+                              </>
+                            ) : (
+                              <button className="delete-btn" onClick={() => handleDelete(b.id)}>
+                                Delete
                               </button>
+                            )}
 
-                              <button
-                                className="reject-btn"
-                                onClick={() => handleReject(b.id)}
-                              >
-                                Reject
-                              </button>
-
-                            </div>
-                          )}
-
-                          {b.status !== "PENDING" && (
-                            <button
-                              className="delete-btn"
-                              onClick={() => handleDelete(b.id)}
-                            >
-                              Delete
-                            </button>
-                          )}
-
-                        </div>
+                          </div>
+                        )}
 
                       </div>
 

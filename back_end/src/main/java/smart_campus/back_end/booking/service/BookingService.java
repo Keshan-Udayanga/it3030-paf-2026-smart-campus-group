@@ -23,7 +23,7 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
 
-    // ================= CREATE BOOKING =================
+    // ================= CREATE =================
     public BookingResponse createBooking(CreateBookingRequest request) {
 
         checkForConflicts(
@@ -51,15 +51,25 @@ public class BookingService {
         return BookingMapper.toResponse(bookingRepository.save(booking));
     }
 
-    // ================= GET ALL =================
-    public List<BookingResponse> getAllBookings() {
-        return bookingRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
+    // ================= GET BOOKINGS (ADMIN + USER LOGIC) =================
+    public List<BookingResponse> getBookings(String userId) {
+
+        List<Booking> bookings;
+
+        if (userId == null) {
+            // ADMIN → ALL BOOKINGS
+            bookings = bookingRepository.findAllByOrderByCreatedAtDesc();
+        } else {
+            // USER → OWN BOOKINGS
+            bookings = bookingRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        }
+
+        return bookings.stream()
                 .map(BookingMapper::toResponse)
                 .toList();
     }
 
-    // ================= GET MY BOOKINGS =================
+    // ================= MY BOOKINGS =================
     public List<BookingResponse> getMyBookings(String userId) {
         return bookingRepository.findByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
@@ -67,15 +77,7 @@ public class BookingService {
                 .toList();
     }
 
-    // ================= GET BY ID =================
-    public BookingResponse getBookingById(String id) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
-
-        return BookingMapper.toResponse(booking);
-    }
-
-    // ================= REVIEW BOOKING =================
+    // ================= REVIEW =================
     public BookingResponse reviewBooking(String id, ReviewBookingRequest request) {
 
         Booking booking = bookingRepository.findById(id)
@@ -93,10 +95,6 @@ public class BookingService {
 
         decision = decision.trim().toUpperCase();
 
-        if (!decision.equals("APPROVED") && !decision.equals("REJECTED")) {
-            throw new BadRequestException("Decision must be APPROVED or REJECTED");
-        }
-
         // ================= APPROVE =================
         if (decision.equals("APPROVED")) {
 
@@ -113,17 +111,19 @@ public class BookingService {
         }
 
         // ================= REJECT =================
-        else {
+        else if (decision.equals("REJECTED")) {
 
             booking.setStatus(BookingStatus.REJECTED);
 
             String reason = request.getAdminReason();
+            booking.setAdminReason(
+                    (reason != null && !reason.trim().isEmpty())
+                            ? reason.trim()
+                            : "Rejected by admin"
+            );
 
-            if (reason != null && !reason.trim().isEmpty()) {
-                booking.setAdminReason(reason.trim());
-            } else {
-                booking.setAdminReason("Rejected by admin");
-            }
+        } else {
+            throw new BadRequestException("Decision must be APPROVED or REJECTED");
         }
 
         booking.setUpdatedAt(LocalDateTime.now());
@@ -131,7 +131,7 @@ public class BookingService {
         return BookingMapper.toResponse(bookingRepository.save(booking));
     }
 
-    // ================= CANCEL BOOKING =================
+    // ================= CANCEL =================
     public BookingResponse cancelBooking(String id) {
 
         Booking booking = bookingRepository.findById(id)
@@ -147,8 +147,9 @@ public class BookingService {
         return BookingMapper.toResponse(bookingRepository.save(booking));
     }
 
-    // ================= DELETE BOOKING =================
+    // ================= DELETE =================
     public void deleteBooking(String id) {
+
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
 
