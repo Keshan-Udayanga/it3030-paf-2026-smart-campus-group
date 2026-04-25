@@ -11,7 +11,7 @@ public interface AttachmentService {
     /**
      * Upload up to 3 files and link them to the given ticket.
      */
-    List<String> uploadAttachments(String ticketId, List<MultipartFile> files) throws IOException;
+    List<Attachment> uploadAttachments(String ticketId, List<MultipartFile> files) throws IOException;
 
     /**
      * Download a single attachment by its MongoDB ID.

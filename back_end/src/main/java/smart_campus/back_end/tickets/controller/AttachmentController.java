@@ -7,11 +7,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import smart_campus.back_end.tickets.dto.AttachmentDTO;
 import smart_campus.back_end.tickets.entity.Attachment;
 import smart_campus.back_end.tickets.service.AttachmentService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/tickets")
@@ -36,8 +38,19 @@ public class AttachmentController {
         }
 
         try {
-            List<String> savedIds = attachmentService.uploadAttachments(ticketId, files);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedIds);
+            List<Attachment> saved = attachmentService.uploadAttachments(ticketId, files);
+
+            List<AttachmentDTO> response = saved.stream()
+                    .map(a -> new AttachmentDTO(
+                            a.getId(),
+                            a.getFileName(),
+                            a.getFileType(),
+                            "http://localhost:8080/api/v1/tickets/attachments/" + a.getId()
+                    ))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("File upload failed: " + e.getMessage());

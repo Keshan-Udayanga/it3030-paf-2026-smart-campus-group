@@ -25,7 +25,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     private TicketRepository ticketRepository;
 
     @Override
-    public List<String> uploadAttachments(String ticketId, List<MultipartFile> files) throws IOException {
+    public List<Attachment> uploadAttachments(String ticketId, List<MultipartFile> files) throws IOException {
 
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Ticket not found: " + ticketId));
@@ -40,7 +40,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             throw new RuntimeException("Maximum of " + MAX_ATTACHMENTS + " attachments already reached.");
         }
 
-        List<String> newIds = new ArrayList<>();
+        List<Attachment> savedAttachments = new ArrayList<>();
         int count = 0;
         for (MultipartFile file : files) {
             if (count >= slotsLeft) break;
@@ -51,15 +51,19 @@ public class AttachmentServiceImpl implements AttachmentService {
                     file.getBytes()
             );
             Attachment saved = attachmentRepository.save(attachment);
-            newIds.add(saved.getId());
+            savedAttachments.add(saved);
             count++;
         }
+
+        List<String> newIds = savedAttachments.stream()
+                .map(Attachment::getId)
+                .toList();
 
         existingIds.addAll(newIds);
         ticket.setAttachmentIds(existingIds);
         ticketRepository.save(ticket);
 
-        return newIds;
+        return savedAttachments;
     }
 
     @Override
