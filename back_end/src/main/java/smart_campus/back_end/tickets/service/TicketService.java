@@ -9,5 +9,7 @@ public interface TicketService {
     Ticket createTicket(TicketRequestDTO ticketRequestDTO);
 
     List<Ticket> getAllTickets();
+
+    Ticket updateTicket(String id, Ticket updatedTicket);
 }
 

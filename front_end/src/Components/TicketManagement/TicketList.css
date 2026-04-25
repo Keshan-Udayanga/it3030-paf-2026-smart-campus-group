@@ -1,0 +1,43 @@
+
+.popup {
+  position: fixed;
+  top: 30%;
+  left: 40%;
+  background: white;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 300px;
+  z-index: 1000;
+}
+
+.popup input, .popup select, .popup textarea {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.popup textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.popup button {
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.popup button.cancel-btn {
+  background-color: #dc3545;
+}
+
+.popup button:hover {
+  opacity: 0.9;
+}

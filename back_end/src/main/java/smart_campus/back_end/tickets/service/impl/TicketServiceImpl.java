@@ -43,4 +43,17 @@ public class TicketServiceImpl implements TicketService {
     public List<Ticket> getAllTickets() {
         return ticketRepository.findAll();
     }
+
+    @Override
+    public Ticket updateTicket(String id, Ticket updatedTicket) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+
+        ticket.setAssignedTechnician(updatedTicket.getAssignedTechnician());
+        ticket.setStatus(updatedTicket.getStatus());
+        ticket.setResolutionNotes(updatedTicket.getResolutionNotes());
+        ticket.setUpdatedAt(LocalDateTime.now());
+
+        return ticketRepository.save(ticket);
+    }
 }
