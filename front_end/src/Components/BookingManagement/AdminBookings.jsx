@@ -73,7 +73,7 @@ function AdminBookings() {
     );
   }, []);
 
-  // ---------------- APPROVE (UPDATED WITH CONFIRM) ----------------
+  // ---------------- APPROVE ----------------
   const handleApprove = async (id) => {
     const result = await Swal.fire({
       title: "Approve Booking?",
@@ -114,7 +114,7 @@ function AdminBookings() {
     }
   };
 
-  // ---------------- REJECT (SWEETALERT2) ----------------
+  // ---------------- REJECT ----------------
   const handleReject = async (id) => {
     const reason = rejectReasons[id] || "No reason provided";
 
@@ -161,6 +161,48 @@ function AdminBookings() {
         icon: "error",
         title: "Error",
         text: "Failed to reject booking",
+      });
+    }
+  };
+
+  // ---------------- DELETE ----------------
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: "Delete Booking?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#111827",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, Delete",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await axios.delete(
+        `http://localhost:8080/api/bookings/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      await Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "Booking deleted successfully",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      loadBookings();
+    } catch (err) {
+      console.log("Delete error", err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to delete booking",
       });
     }
   };
@@ -258,9 +300,11 @@ function AdminBookings() {
                           )}
                         </div>
 
+                        {/* ✅ UPDATED ACTIONS */}
                         <div>
                           <strong>Actions:</strong>{" "}
-                          {b.status === "PENDING" ? (
+
+                          {b.status === "PENDING" && (
                             <div className="admin-actions">
 
                               <button
@@ -278,9 +322,17 @@ function AdminBookings() {
                               </button>
 
                             </div>
-                          ) : (
-                            <span>Done</span>
                           )}
+
+                          {b.status !== "PENDING" && (
+                            <button
+                              className="delete-btn"
+                              onClick={() => handleDelete(b.id)}
+                            >
+                              Delete
+                            </button>
+                          )}
+
                         </div>
 
                       </div>

@@ -149,13 +149,8 @@ public class BookingService {
 
     // ================= DELETE BOOKING =================
     public void deleteBooking(String id) {
-
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
-
-        if (booking.getStatus() != BookingStatus.PENDING) {
-            throw new BadRequestException("Only PENDING bookings can be deleted");
-        }
 
         bookingRepository.delete(booking);
     }
