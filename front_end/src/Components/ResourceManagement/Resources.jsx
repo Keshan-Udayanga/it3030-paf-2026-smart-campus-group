@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Resources.css";
 
 const Resources = () => {
+  const navigate = useNavigate();
+
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -167,7 +170,11 @@ const Resources = () => {
 
                         <td>
                           <div className="action-buttons">
-                            <button className="btn-book" disabled={!available}>
+                            <button
+                              className="btn-book"
+                              disabled={!available}
+                              onClick={() => navigate(`/booking/${res.id}`)}
+                            >
                               Book
                             </button>
                           </div>
