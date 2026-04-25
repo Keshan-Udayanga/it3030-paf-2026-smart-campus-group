@@ -9,7 +9,14 @@ function TicketList() {
     const [status, setStatus] = useState("");
     const [notes, setNotes] = useState("");
 
+    const [filter, setFilter] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+
     useEffect(() => {
+        fetchTickets();
+    }, []);
+
+    const fetchTickets = () => {
         axios.get("http://localhost:8080/api/v1/tickets")
             .then((res) => {
                 setTickets(res.data);
@@ -17,7 +24,7 @@ function TicketList() {
             .catch((err) => {
                 console.error(err);
             });
-    }, []);
+    };
 
     const handleEdit = (ticket) => {
         setSelectedTicket(ticket);
@@ -38,7 +45,8 @@ function TicketList() {
             );
 
             alert("Ticket Updated!");
-            window.location.reload();
+            setSelectedTicket(null);
+            fetchTickets();
 
         } catch (error) {
             console.error(error);
@@ -46,9 +54,74 @@ function TicketList() {
         }
     };
 
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this ticket?")) {
+            try {
+                await axios.delete(`http://localhost:8080/api/v1/tickets/${id}`);
+                alert("Ticket Deleted!");
+                fetchTickets();
+            } catch (error) {
+                console.error(error);
+                alert("Delete failed");
+            }
+        }
+    };
+
+    const total = tickets.length;
+    const open = tickets.filter(t => t.status === "OPEN").length;
+    const inProgress = tickets.filter(t => t.status === "IN_PROGRESS").length;
+    const closed = tickets.filter(t => t.status === "CLOSED").length;
+
+    const filteredTickets = tickets.filter(t => {
+        const matchFilter = filter ? t.status === filter : true;
+        const titleMatch = t.title ? t.title.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+        const categoryMatch = t.category ? t.category.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+        const matchSearch = titleMatch || categoryMatch;
+        return matchFilter && matchSearch;
+    });
+
     return (
         <div className="ticket-list-container">
-            <h2>All Tickets (Admin)</h2>
+            <h2>Admin Dashboard</h2>
+
+            <div className="dashboard-stats">
+                <div className="stat-card">
+                    <h3>Total Tickets</h3>
+                    <p>{total}</p>
+                </div>
+                <div className="stat-card open">
+                    <h3>Open</h3>
+                    <p>{open}</p>
+                </div>
+                <div className="stat-card progress">
+                    <h3>In Progress</h3>
+                    <p>{inProgress}</p>
+                </div>
+                <div className="stat-card closed">
+                    <h3>Closed</h3>
+                    <p>{closed}</p>
+                </div>
+            </div>
+
+            <div className="controls">
+                <input 
+                    type="text" 
+                    placeholder="Search by Title or Category..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input"
+                />
+                <select 
+                    value={filter} 
+                    onChange={(e) => setFilter(e.target.value)}
+                    className="filter-select"
+                >
+                    <option value="">All Statuses</option>
+                    <option value="OPEN">OPEN</option>
+                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="CLOSED">CLOSED</option>
+                </select>
+            </div>
 
             <table>
                 <thead>
@@ -64,7 +137,7 @@ function TicketList() {
                 </thead>
 
                 <tbody>
-                    {tickets.map((t) => (
+                    {filteredTickets.map((t) => (
                         <tr key={t.id}>
                             <td>{t.ticketCode}</td>
                             <td>{t.title}</td>
@@ -72,8 +145,9 @@ function TicketList() {
                             <td>{t.priority}</td>
                             <td>{t.status}</td>
                             <td>{t.preferredContactName}</td>
-                            <td>
-                                <button onClick={() => handleEdit(t)}>Assign</button>
+                            <td className="action-buttons">
+                                <button onClick={() => handleEdit(t)} className="assign-btn">Assign</button>
+                                <button onClick={() => handleDelete(t.id)} className="delete-btn">Delete</button>
                             </td>
                         </tr>
                     ))}

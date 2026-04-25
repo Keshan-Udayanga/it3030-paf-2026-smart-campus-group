@@ -56,4 +56,9 @@ public class TicketServiceImpl implements TicketService {
 
         return ticketRepository.save(ticket);
     }
+
+    @Override
+    public void deleteTicket(String id) {
+        ticketRepository.deleteById(id);
+    }
 }

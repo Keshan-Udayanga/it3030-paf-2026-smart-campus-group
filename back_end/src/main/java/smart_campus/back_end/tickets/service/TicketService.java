@@ -11,5 +11,7 @@ public interface TicketService {
     List<Ticket> getAllTickets();
 
     Ticket updateTicket(String id, Ticket updatedTicket);
+
+    void deleteTicket(String id);
 }
 
