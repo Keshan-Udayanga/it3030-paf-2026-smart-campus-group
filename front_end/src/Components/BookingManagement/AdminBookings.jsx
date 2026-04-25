@@ -73,26 +73,48 @@ function AdminBookings() {
     );
   }, []);
 
-  // ---------------- APPROVE ----------------
+  // ---------------- APPROVE (UPDATED WITH CONFIRM) ----------------
   const handleApprove = async (id) => {
-    await axios.patch(
-      `http://localhost:8080/api/bookings/${id}/review`,
-      { decision: "APPROVED" },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    Swal.fire({
-      icon: "success",
-      title: "Approved!",
-      text: "Booking approved successfully",
-      timer: 1500,
-      showConfirmButton: false,
+    const result = await Swal.fire({
+      title: "Approve Booking?",
+      text: "Status will be changed to APPROVED",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#10b981",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, Approve",
     });
 
-    loadBookings();
+    if (!result.isConfirmed) return;
+
+    try {
+      await axios.patch(
+        `http://localhost:8080/api/bookings/${id}/review`,
+        { decision: "APPROVED" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      await Swal.fire({
+        icon: "success",
+        title: "Approved!",
+        text: "Booking approved successfully",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      loadBookings();
+    } catch (err) {
+      console.log("Approve error", err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to approve booking",
+      });
+    }
   };
 
-  // ---------------- REJECT (SWEETALERT2 ADDED) ----------------
+  // ---------------- REJECT (SWEETALERT2) ----------------
   const handleReject = async (id) => {
     const reason = rejectReasons[id] || "No reason provided";
 
@@ -123,7 +145,7 @@ function AdminBookings() {
         }
       );
 
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
         title: "Rejected!",
         text: "Booking rejected successfully",
