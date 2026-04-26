@@ -56,7 +56,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // PUBLIC GET RESOURCES
-                        .requestMatchers(HttpMethod.GET, "/api/resources/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/resources").permitAll()
 
                         // BOOKING ACCESS (IMPORTANT FIX)
                         .requestMatchers("/api/bookings/**")
@@ -67,7 +67,7 @@ public class SecurityConfig {
                         .hasAnyRole("ADMIN", "RESOURCE_MANAGER")
 
                         .requestMatchers("/api/v1/notifications/**")
-                        .hasAnyRole("ADMIN", "USER")
+                        .hasAnyRole("ADMIN", "USER", "RESOURCE_MANAGER")
 
                         .requestMatchers("/api/v1/users/**")
                         .hasRole("ADMIN")
