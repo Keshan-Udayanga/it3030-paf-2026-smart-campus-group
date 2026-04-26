@@ -29,6 +29,10 @@ public class TicketController {
     public ResponseEntity<List<Ticket>> getAllTickets() {
         return ResponseEntity.ok(ticketService.getAllTickets());
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<Ticket> getTicketById(@PathVariable String id) {
+        return ResponseEntity.ok(ticketService.getTicketById(id));
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Ticket> updateTicket(

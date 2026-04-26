@@ -9,8 +9,12 @@ const Resources = () => {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Example API endpoint, replace with your Spring Boot API
+  const [searchTerm, setSearchTerm] = useState("");
+  const [timeFrom, setTimeFrom] = useState("");
+  const [timeTo, setTimeTo] = useState("");
+
+  const fetchResources = () => {
+    setLoading(true);
     axios.get("http://localhost:8080/api/resources")
       .then((res) => {
         setResources(Array.isArray(res.data) ? res.data : []);
@@ -26,11 +30,16 @@ const Resources = () => {
     fetchResources();
   }, []);
 
+  const isAvailable = (resourceId, from, to) => {
+    // Dummy implementation for now
+    return true;
+  };
+
   // 🔥 FILTERED RESOURCES (search + availability)
   const filteredResources = resources.filter((res) => {
     const matchesSearch =
-      res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      res.type.toLowerCase().includes(searchTerm.toLowerCase());
+      (res.name && res.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (res.type && res.type.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const available = isAvailable(res.id, timeFrom, timeTo);
 

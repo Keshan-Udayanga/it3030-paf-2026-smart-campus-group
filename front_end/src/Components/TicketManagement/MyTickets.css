@@ -1,0 +1,124 @@
+
+.my-tickets-container {
+    max-width: 1000px;
+    margin: 60px auto;
+    padding: 0 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+.my-tickets-header {
+    margin-bottom: 40px;
+}
+
+.my-tickets-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+.my-tickets-header p {
+    color: #64748b;
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+}
+
+.create-btn {
+    background-color: #0d9488;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.create-btn:hover {
+    background-color: #0f766e;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.3);
+}
+
+.tickets-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ticket-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.ticket-card:hover {
+    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05);
+    border-color: #cbd5e1;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.ticket-code {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.status-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-pill.OPEN { background-color: #dbeafe; color: #1e40af; }
+.status-pill.IN_PROGRESS { background-color: #fef3c7; color: #92400e; }
+.status-pill.RESOLVED { background-color: #d1fae5; color: #065f46; }
+.status-pill.CLOSED { background-color: #e0e7ff; color: #3730a3; }
+.status-pill.REJECTED { background-color: #fee2e2; color: #991b1b; }
+
+.category-loc {
+    color: #475569;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.created-at {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+}
+
+.view-details-btn {
+    background-color: #22c55e;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-details-btn:hover {
+    background-color: #16a34a;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.loading, .no-tickets {
+    text-align: center;
+    padding: 40px;
+    color: #64748b;
+    font-weight: 500;
+}

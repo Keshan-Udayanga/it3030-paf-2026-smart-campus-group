@@ -41,7 +41,13 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public List<Ticket> getAllTickets() {
-        return ticketRepository.findAll();
+        return ticketRepository.findAllByOrderByCreatedAtAsc();
+    }
+
+    @Override
+    public Ticket getTicketById(String id) {
+        return ticketRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ticket not found"));
     }
 
     @Override
@@ -52,6 +58,7 @@ public class TicketServiceImpl implements TicketService {
         ticket.setAssignedTechnician(updatedTicket.getAssignedTechnician());
         ticket.setStatus(updatedTicket.getStatus());
         ticket.setResolutionNotes(updatedTicket.getResolutionNotes());
+        ticket.setRejectionReason(updatedTicket.getRejectionReason());
         ticket.setUpdatedAt(LocalDateTime.now());
 
         return ticketRepository.save(ticket);

@@ -1,0 +1,205 @@
+
+.ticket-details-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+.ticket-details-container h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 25px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.back-btn-outline {
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.back-btn-outline:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.create-another-btn {
+    background: #0f172a;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.create-another-btn:hover {
+    background: #1e293b;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+}
+
+.details-card-main {
+    background: white;
+    border-radius: 20px;
+    padding: 35px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.ticket-id-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.badge-row {
+    display: flex;
+    gap: 10px;
+}
+
+.status-pill-solid {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-pill-solid.RESOLVED { background: #d1fae5; color: #065f46; }
+.status-pill-solid.OPEN { background: #dbeafe; color: #1e40af; }
+.status-pill-solid.REJECTED { background: #fee2e2; color: #991b1b; }
+
+.priority-pill-solid {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: #dcfce7;
+    color: #166534;
+}
+
+.priority-pill-solid.HIGH { background: #fee2e2; color: #991b1b; }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.info-box {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    padding: 16px 20px;
+    border-radius: 12px;
+}
+
+.info-box.full-width {
+    grid-column: span 2;
+}
+
+.info-box label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #0d9488;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+.info-box p {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #334155;
+    margin: 0;
+}
+
+.contact-details p {
+    margin-bottom: 2px;
+}
+
+.sub-text {
+    font-size: 0.85rem !important;
+    color: #64748b !important;
+}
+
+.rejected-reason {
+    background: #fff1f2;
+    border-color: #fecdd3;
+}
+
+.rejected-reason label {
+    color: #e11d48;
+}
+
+.attachments-footer {
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.attachments-footer label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #0d9488;
+    margin-bottom: 12px;
+}
+
+.attachment-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.attachment-chip {
+    background: #f1f5f9;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.attachment-chip:hover {
+    background: #e2e8f0;
+}
+
+.comments-section-wrapper {
+    margin-top: 40px;
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+@media (max-width: 600px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    .info-box.full-width {
+        grid-column: span 1;
+    }
+}

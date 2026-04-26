@@ -119,7 +119,7 @@ const NavBar = () => {
             Resources
           </Link>
           <Link to="/tickets" className="nav-link" onClick={toggleMenu}>
-            Tickets
+            My Tickets
           </Link>
           <a href="#services" className="nav-link" onClick={toggleMenu}>Services</a>
           <a href="#contact" className="nav-link" onClick={toggleMenu}>Contact Us</a>

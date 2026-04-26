@@ -9,9 +9,11 @@ function TicketList() {
     const [technician, setTechnician] = useState("");
     const [status, setStatus] = useState("");
     const [notes, setNotes] = useState("");
+    const [rejectionReason, setRejectionReason] = useState("");
 
     const [filter, setFilter] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
+    const [activeTab, setActiveTab] = useState("all"); // "all", "unassigned", "assigned"
 
     useEffect(() => {
         fetchTickets();
@@ -32,6 +34,7 @@ function TicketList() {
         setTechnician(ticket.assignedTechnician || "");
         setStatus(ticket.status || "");
         setNotes(ticket.resolutionNotes || "");
+        setRejectionReason(ticket.rejectionReason || "");
     };
 
     const handleUpdate = async () => {
@@ -41,7 +44,8 @@ function TicketList() {
                 {
                     assignedTechnician: technician,
                     status: status,
-                    resolutionNotes: notes
+                    resolutionNotes: notes,
+                    rejectionReason: rejectionReason
                 }
             );
 
@@ -72,36 +76,92 @@ function TicketList() {
     const open = tickets.filter(t => t.status === "OPEN").length;
     const inProgress = tickets.filter(t => t.status === "IN_PROGRESS").length;
     const closed = tickets.filter(t => t.status === "CLOSED").length;
+    const resolved = tickets.filter(t => t.status === "RESOLVED").length;
+    const rejected = tickets.filter(t => t.status === "REJECTED").length;
 
     const filteredTickets = tickets.filter(t => {
         const matchFilter = filter ? t.status === filter : true;
-        const titleMatch = t.title ? t.title.toLowerCase().includes(searchTerm.toLowerCase()) : false;
-        const categoryMatch = t.category ? t.category.toLowerCase().includes(searchTerm.toLowerCase()) : false;
-        const matchSearch = titleMatch || categoryMatch;
-        return matchFilter && matchSearch;
+        const matchSearch = (t.title ? t.title.toLowerCase().includes(searchTerm.toLowerCase()) : false) || 
+                           (t.ticketCode ? t.ticketCode.toLowerCase().includes(searchTerm.toLowerCase()) : false);
+        
+        const isAssigned = t.assignedTechnician && t.assignedTechnician.trim() !== "";
+        const matchTab = activeTab === "all" ? true : 
+                         activeTab === "assigned" ? isAssigned : !isAssigned;
+
+        return matchFilter && matchSearch && matchTab;
     });
 
     return (
         <div className="ticket-list-container">
-            <h2>Admin Dashboard</h2>
+            <div className="dashboard-header">
+                <h2>Admin Dashboard</h2>
+                <p className="subtitle">Real-time overview of smart campus support tickets</p>
+            </div>
 
             <div className="dashboard-stats">
                 <div className="stat-card">
-                    <h3>Total Tickets</h3>
-                    <p>{total}</p>
+                    <div className="card-info">
+                        <h3>Total Tickets</h3>
+                        <p className="card-desc">All time raised</p>
+                    </div>
+                    <p className="card-value">{total}</p>
                 </div>
                 <div className="stat-card open">
-                    <h3>Open</h3>
-                    <p>{open}</p>
+                    <div className="card-info">
+                        <h3>Open</h3>
+                        <p className="card-desc">Awaiting action</p>
+                    </div>
+                    <p className="card-value">{open}</p>
                 </div>
                 <div className="stat-card progress">
-                    <h3>In Progress</h3>
-                    <p>{inProgress}</p>
+                    <div className="card-info">
+                        <h3>In Progress</h3>
+                        <p className="card-desc">Being handled</p>
+                    </div>
+                    <p className="card-value">{inProgress}</p>
+                </div>
+                <div className="stat-card resolved">
+                    <div className="card-info">
+                        <h3>Resolved</h3>
+                        <p className="card-desc">Fix confirmed</p>
+                    </div>
+                    <p className="card-value">{resolved}</p>
                 </div>
                 <div className="stat-card closed">
-                    <h3>Closed</h3>
-                    <p>{closed}</p>
+                    <div className="card-info">
+                        <h3>Closed</h3>
+                        <p className="card-desc">Archived tickets</p>
+                    </div>
+                    <p className="card-value">{closed}</p>
                 </div>
+                <div className="stat-card rejected">
+                    <div className="card-info">
+                        <h3>Rejected</h3>
+                        <p className="card-desc">Invalid issues</p>
+                    </div>
+                    <p className="card-value">{rejected}</p>
+                </div>
+            </div>
+
+            <div className="dashboard-tabs">
+                <button 
+                    className={`tab-btn ${activeTab === "all" ? "active" : ""}`}
+                    onClick={() => setActiveTab("all")}
+                >
+                    All Tickets <span>({tickets.length})</span>
+                </button>
+                <button 
+                    className={`tab-btn ${activeTab === "unassigned" ? "active" : ""}`}
+                    onClick={() => setActiveTab("unassigned")}
+                >
+                    Unassigned <span>({tickets.filter(t => !t.assignedTechnician).length})</span>
+                </button>
+                <button 
+                    className={`tab-btn ${activeTab === "assigned" ? "active" : ""}`}
+                    onClick={() => setActiveTab("assigned")}
+                >
+                    Assigned <span>({tickets.filter(t => t.assignedTechnician).length})</span>
+                </button>
             </div>
 
             <div className="controls">
@@ -120,7 +180,9 @@ function TicketList() {
                     <option value="">All Statuses</option>
                     <option value="OPEN">OPEN</option>
                     <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="RESOLVED">RESOLVED</option>
                     <option value="CLOSED">CLOSED</option>
+                    <option value="REJECTED">REJECTED</option>
                 </select>
             </div>
 
@@ -145,7 +207,11 @@ function TicketList() {
                             <td>{t.title}</td>
                             <td>{t.category}</td>
                             <td>{t.priority}</td>
-                            <td>{t.status}</td>
+                            <td>
+                                <span className={`status-badge ${t.status}`}>
+                                    {t.status}
+                                </span>
+                            </td>
                             <td>{t.preferredContactName}</td>
                             <td className="attachment-links">
                                 {t.attachmentIds && t.attachmentIds.length > 0
@@ -175,32 +241,55 @@ function TicketList() {
             {selectedTicket && (
                 <div className="popup-overlay">
                     <div className="popup">
-                        <h3>Assign Technician</h3>
-
-                        <input
-                            placeholder="Technician Name"
-                            value={technician}
-                            onChange={(e) => setTechnician(e.target.value)}
-                        />
-
-                        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-                            <option value="">Select Status</option>
-                            <option value="OPEN">OPEN</option>
-                            <option value="IN_PROGRESS">IN_PROGRESS</option>
-                            <option value="CLOSED">CLOSED</option>
-                        </select>
-
-                        <textarea
-                            placeholder="Resolution Notes"
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                        />
-
-                        <button onClick={handleUpdate}>Update</button>
+                        <h3>Update Ticket Status & Assignment</h3>
                         
-                        <CommentSection ticketId={selectedTicket.id} />
+                        <div className="popup-field">
+                            <label>Assigned Technician</label>
+                            <input 
+                                placeholder="Enter Technician Name" 
+                                value={technician} 
+                                onChange={(e) => setTechnician(e.target.value)} 
+                            />
+                        </div>
 
-                        <button className="cancel-btn" onClick={() => setSelectedTicket(null)}>Cancel</button>
+                        <div className="popup-field">
+                            <label>Status</label>
+                            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+                                <option value="">Select Status</option>
+                                <option value="OPEN">OPEN</option>
+                                <option value="IN_PROGRESS">IN_PROGRESS</option>
+                                <option value="RESOLVED">RESOLVED</option>
+                                <option value="CLOSED">CLOSED</option>
+                                <option value="REJECTED">REJECTED</option>
+                            </select>
+                        </div>
+
+                        {status === "REJECTED" && (
+                            <div className="popup-field">
+                                <label>Rejection Reason</label>
+                                <textarea
+                                    placeholder="Explain why the ticket is rejected"
+                                    value={rejectionReason}
+                                    onChange={(e) => setRejectionReason(e.target.value)}
+                                />
+                            </div>
+                        )}
+
+                        <div className="popup-field">
+                            <label>Resolution Notes</label>
+                            <textarea
+                                placeholder="Add notes about the work done or solution"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="popup-actions">
+                            <button className="update-btn" onClick={handleUpdate}>Update Ticket</button>
+                            <button className="cancel-btn" onClick={() => setSelectedTicket(null)}>Cancel</button>
+                        </div>
+
+                        <CommentSection ticketId={selectedTicket.id} />
                     </div>
                 </div>
             )}

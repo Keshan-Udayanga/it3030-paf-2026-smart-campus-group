@@ -31,7 +31,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentDTO> getCommentsByTicketId(String ticketId) {
-        return commentRepository.findByTicketIdOrderByCreatedAtDesc(ticketId)
+        return commentRepository.findByTicketIdOrderByCreatedAtAsc(ticketId)
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());

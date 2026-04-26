@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./TicketForm.css";
 
 function TicketForm() {
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -29,12 +31,24 @@ function TicketForm() {
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
+    
+    // Rule 1: Max 3 files
     if (selected.length > 3) {
       setMessage("Maximum 3 files allowed!");
       setType("error");
       e.target.value = null;
       return;
     }
+
+    // Rule 2: Max 5MB per file
+    const oversized = selected.find(f => f.size > 5 * 1024 * 1024);
+    if (oversized) {
+      setMessage(`File "${oversized.name}" is too large! Max 5MB allowed.`);
+      setType("error");
+      e.target.value = null;
+      return;
+    }
+
     setFiles(selected);
   };
 
@@ -65,7 +79,10 @@ function TicketForm() {
       setMessage("Ticket Created Successfully!");
       setType("success");
 
-      setTimeout(() => setMessage(""), 3000);
+      setTimeout(() => {
+        setMessage("");
+        navigate("/tickets");
+      }, 2000);
 
       // Reset form
       setFormData({
@@ -197,8 +214,17 @@ function TicketForm() {
         </div>
 
         <div className="form-group">
-          <label className="file-label">Attachments (max 3 files)</label>
+          <label className="file-label-main">Attachments</label>
+          <div className="attachment-rules">
+            <span>• Max 3 files</span>
+            <span>• Max 5MB per file</span>
+            <span>• Images, PDF, DOC, TXT</span>
+          </div>
+          <label className="file-label" htmlFor="ticket-files">
+            <span>📎 Click to upload or drag & drop</span>
+          </label>
           <input
+            id="ticket-files"
             type="file"
             multiple
             accept="image/*,application/pdf,.doc,.docx,.txt"

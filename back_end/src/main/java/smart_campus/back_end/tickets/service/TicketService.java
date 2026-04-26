@@ -10,6 +10,8 @@ public interface TicketService {
 
     List<Ticket> getAllTickets();
 
+    Ticket getTicketById(String id);
+
     Ticket updateTicket(String id, Ticket updatedTicket);
 
     void deleteTicket(String id);
