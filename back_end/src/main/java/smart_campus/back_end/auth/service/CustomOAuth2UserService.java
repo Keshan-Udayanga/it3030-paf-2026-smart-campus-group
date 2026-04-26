@@ -1,12 +1,14 @@
 package smart_campus.back_end.auth.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import smart_campus.back_end.auth.exception.UnauthorizedDomainException;
 import smart_campus.back_end.auth.model.User;
 import smart_campus.back_end.auth.repository.UserRepository;
@@ -49,6 +51,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             return saved;
         });
+
+        //Check disabled user
+        if (!user.isEnabled()) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Account is disabled"
+            );
+        }
 
         // Convert roles to Spring authorities
         var authorities = user.getRoles().stream()
