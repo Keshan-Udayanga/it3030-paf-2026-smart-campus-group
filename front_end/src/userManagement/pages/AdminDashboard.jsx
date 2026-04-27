@@ -5,16 +5,23 @@ import "../styles/AdminDashboard.css";
 function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [userCount, setUserCount] = useState(0);
+  const [stats, setStats] = useState({
+    total: 0,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+
+    if (!token) {
+      window.location.href = "/";
+      return;
+    }
 
     axios.get("http://localhost:8080/api/v1/auth/me", {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => {
       setUser(res.data);
-      localStorage.setItem("userName", res.data.name);
       window.dispatchEvent(new Event("authChanged"));
     })
     .catch(() => {
@@ -27,6 +34,30 @@ function AdminDashboard() {
     })
     .then(res => setUserCount(res.data))
     .catch(err => console.error(err));
+
+    axios
+      .get("http://localhost:8080/api/resources", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        console.log("RESOURCES:", res.data);
+
+        // FIX: handle both array & wrapped response
+        const data = Array.isArray(res.data)
+          ? res.data
+          : res.data.data || [];
+
+        
+
+        const active = data.filter(
+          (r) => r.status === "ACTIVE"
+        ).length;
+
+        setStats({
+          active,
+        });
+      })
+      .catch((err) => console.error(err));
 
   }, []);
 
@@ -54,8 +85,8 @@ function AdminDashboard() {
           </div>
 
           <div className="admin-card">
-            <h4>Resources</h4>
-            <p className="card-value">45</p>
+            <h4>Active Resources</h4>
+            <p className="card-value">{stats.active}</p>
             <span>Manage campus resources</span>
           </div>
 

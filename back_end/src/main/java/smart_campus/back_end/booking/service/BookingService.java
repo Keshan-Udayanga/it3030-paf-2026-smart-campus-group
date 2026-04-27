@@ -1,7 +1,10 @@
 package smart_campus.back_end.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import smart_campus.back_end.auth.model.User;
+import smart_campus.back_end.auth.repository.UserRepository;
 import smart_campus.back_end.booking.dto.BookingResponse;
 import smart_campus.back_end.booking.dto.CreateBookingRequest;
 import smart_campus.back_end.booking.dto.ReviewBookingRequest;
@@ -12,19 +15,32 @@ import smart_campus.back_end.booking.mapper.BookingMapper;
 import smart_campus.back_end.booking.model.Booking;
 import smart_campus.back_end.booking.model.BookingStatus;
 import smart_campus.back_end.booking.repository.BookingRepository;
+import smart_campus.back_end.notification.service.NotificationService;
+import smart_campus.back_end.resources.model.Resource;
+import smart_campus.back_end.resources.repository.ResourceRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class BookingService {
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ResourceRepository resourceRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
     private final BookingRepository bookingRepository;
 
     // ================= CREATE BOOKING =================
-    public BookingResponse createBooking(CreateBookingRequest request) {
+    public BookingResponse createBooking(CreateBookingRequest request, String userID) {
 
         checkForConflicts(
                 request.getResourceId(),
@@ -36,7 +52,7 @@ public class BookingService {
 
         Booking booking = Booking.builder()
                 .resourceId(request.getResourceId())
-                .userId(request.getUserId())
+                .userId(userID)
                 .bookingDate(request.getBookingDate())
                 .startDateTime(request.getStartDateTime())
                 .endDateTime(request.getEndDateTime())
@@ -48,7 +64,22 @@ public class BookingService {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        return BookingMapper.toResponse(bookingRepository.save(booking));
+        Booking saved = bookingRepository.save(booking);
+
+        List<User> managers = userRepository.findByRolesContaining("ROLE_RESOURCE_MANAGER");
+        List<User> admins = userRepository.findByRolesContaining("ROLE_ADMIN");
+
+        String message = "New booking request for resource " + saved.getResourceId();
+
+        managers.forEach(u ->
+                notificationService.createNotification(u.getId(), message, "BOOKING")
+        );
+
+        admins.forEach(u ->
+                notificationService.createNotification(u.getId(), message, "BOOKING")
+        );
+
+        return BookingMapper.toResponse(saved);
     }
 
     // ================= GET ALL =================
@@ -128,7 +159,34 @@ public class BookingService {
 
         booking.setUpdatedAt(LocalDateTime.now());
 
-        return BookingMapper.toResponse(bookingRepository.save(booking));
+        Booking updated = bookingRepository.save(booking);
+
+        String resourceName = resourceRepository.findById(updated.getResourceId())
+                .map(Resource::getName)
+                .orElse("Resource");
+
+        String message;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        String formattedDate = updated.getStartDateTime().format(formatter);
+
+        if (updated.getStatus() == BookingStatus.APPROVED) {
+            message = "Your booking for " + resourceName +
+                    " on " + formattedDate + " has been approved";
+        } else {
+            message = "Your booking for " + resourceName +
+                    " on " + formattedDate +
+                    " was rejected. Reason: " + updated.getAdminReason();
+        }
+
+        notificationService.createNotification(
+                updated.getUserId(),
+                message,
+                "BOOKING"
+        );
+
+        return BookingMapper.toResponse(updated);
     }
 
     // ================= CANCEL BOOKING =================

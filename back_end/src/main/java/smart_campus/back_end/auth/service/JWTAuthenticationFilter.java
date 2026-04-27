@@ -40,13 +40,21 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         String email = jwtService.extractEmail(token);
 
-        if(email != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            userService.findByEmail(email).ifPresent(user -> {
-                CustomUserDetails customUserDetails = new CustomUserDetails(user);
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            });
+        User user = userService.findByEmail(email);
+
+        //Kill access for already logged in user
+        if (user == null || !user.isEnabled()) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return; // stop filter chain
+        }
+
+        if(SecurityContextHolder.getContext().getAuthentication() == null){
+            CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
