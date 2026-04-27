@@ -51,7 +51,8 @@ public class UserController {
 
     @GetMapping("/email/{email}")
     public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email){
-        User user = userService.findByEmail(email);
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
         UserResponse response = userMapper.toUserResponse(user);
 
         response.add(linkTo(methodOn(UserController.class)
