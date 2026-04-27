@@ -27,7 +27,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         throws IOException{
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
-        User user = userService.findByEmail(email);
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found after OAuth2 login: " + email));
 
         String token = jwtService.generateToken(user);
         String redirectUrl = "http://localhost:3000/user-dashboard?token=" + token;

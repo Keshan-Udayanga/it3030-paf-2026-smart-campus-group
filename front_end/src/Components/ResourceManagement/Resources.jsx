@@ -9,62 +9,13 @@ const Resources = () => {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Search & Filter
   const [searchTerm, setSearchTerm] = useState("");
   const [timeFrom, setTimeFrom] = useState("");
   const [timeTo, setTimeTo] = useState("");
 
-  // 🔥 HARD CODED BOOKINGS (temporary)
-  const bookings = [
-    {
-      resourceId: 1,
-      start: "2026-04-20T10:00",
-      end: "2026-04-20T12:00",
-    },
-    {
-      resourceId: 2,
-      start: "2026-04-20T14:00",
-      end: "2026-04-20T16:00",
-    },
-    {
-      resourceId: 1,
-      start: "2026-04-20T15:00",
-      end: "2026-04-20T17:00",
-    },
-  ];
-
-  // 🔥 CHECK AVAILABILITY FUNCTION
-  const isAvailable = (resourceId, userFrom, userTo) => {
-    if (!userFrom || !userTo) return true;
-
-    const from = new Date(userFrom);
-    const to = new Date(userTo);
-
-    const resourceBookings = bookings.filter(
-      (b) => b.resourceId === resourceId,
-    );
-
-    for (let booking of resourceBookings) {
-      const bStart = new Date(booking.start);
-      const bEnd = new Date(booking.end);
-
-      // ❌ overlap check
-      const overlap = from < bEnd && to > bStart;
-
-      if (overlap) return false;
-    }
-
-    return true;
-  };
-
-  // 🔥 FETCH RESOURCES
   const fetchResources = () => {
     setLoading(true);
-
-    axios
-      .get("http://localhost:8080/api/resources", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      })
+    axios.get("http://localhost:8080/api/resources")
       .then((res) => {
         setResources(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
@@ -79,11 +30,16 @@ const Resources = () => {
     fetchResources();
   }, []);
 
+  const isAvailable = (resourceId, from, to) => {
+    // Dummy implementation for now
+    return true;
+  };
+
   // 🔥 FILTERED RESOURCES (search + availability)
   const filteredResources = resources.filter((res) => {
     const matchesSearch =
-      res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      res.type.toLowerCase().includes(searchTerm.toLowerCase());
+      (res.name && res.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (res.type && res.type.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const available = isAvailable(res.id, timeFrom, timeTo);
 
