@@ -153,7 +153,23 @@ public class BookingService {
 
         booking.setUpdatedAt(LocalDateTime.now());
 
-        return BookingMapper.toResponse(bookingRepository.save(booking));
+        Booking updated = bookingRepository.save(booking);
+
+        String message;
+
+        if (updated.getStatus() == BookingStatus.APPROVED) {
+            message = "Your booking has been approved";
+        } else {
+            message = "Your booking was rejected. Reason: " + updated.getAdminReason();
+        }
+
+        notificationService.createNotification(
+                updated.getUserId(),
+                message,
+                "BOOKING"
+        );
+
+        return BookingMapper.toResponse(updated);
     }
 
     // ================= CANCEL BOOKING =================
