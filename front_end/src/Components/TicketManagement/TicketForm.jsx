@@ -56,10 +56,18 @@ function TicketForm() {
     e.preventDefault();
 
     try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+      window.location.href = "/";
+      return;
+    }
       // Step 1: Create the ticket
       const response = await axios.post(
         "http://localhost:8080/api/v1/tickets",
-        formData
+        formData, {
+                headers: { Authorization: `Bearer ${token}` }
+                }
       );
 
       const ticketId = response.data.id;
@@ -101,6 +109,9 @@ function TicketForm() {
     } catch (error) {
       console.error(error);
       setMessage("Error creating ticket!");
+      setType("error");
+      console.log("VALIDATION ERROR:", error.response?.data);
+      setMessage(error.response?.data?.message || "Error creating ticket!");
       setType("error");
     }
   };

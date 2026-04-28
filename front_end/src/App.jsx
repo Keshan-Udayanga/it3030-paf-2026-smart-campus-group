@@ -9,7 +9,6 @@ import Resources from './Components/ResourceManagement/Resources';
 import Services from "./Components/Services/Services";
 import Contact from "./Components/Contact/Contact";
 
-
 import LoginPage from "./userManagement/pages/LoginPage";
 import AdminDashboard from "./userManagement/pages/AdminDashboard";
 import UserDashboard from "./userManagement/pages/UserDashboard";
@@ -51,7 +50,6 @@ function App() {
           <Route path="/tickets" element={<MyTickets />} />
           <Route path="/tickets/:id" element={<TicketDetails />} />
           <Route path="/tickets/create" element={<TicketForm />} />
-          <Route path="/tickets/list" element={<TicketList />} />
 
           {/* 🛡️ Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
@@ -66,6 +64,8 @@ function App() {
             <Route path="update-resource/:id" element={<UpdateResource />} />
 
             <Route path="booking-management" element={< AdminBookings />} />
+
+            <Route path="tickets" element={<TicketList />} />
 
           </Route>
         </Routes>
