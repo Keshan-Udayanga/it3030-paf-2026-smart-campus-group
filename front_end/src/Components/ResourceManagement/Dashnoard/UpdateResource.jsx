@@ -16,6 +16,9 @@ function UpdateResource() {
         status: ""
     });
 
+    // ✅ NEW POPUP STATE
+    const [showPopup, setShowPopup] = useState(false);
+
     useEffect(() => {
         axios
             .get("http://localhost:8080/api/resources", {
@@ -26,11 +29,11 @@ function UpdateResource() {
                     ? res.data
                     : res.data.data || [];
 
-                const resource = data.find((r) => r.id == id);
+                const resource = data.find((r) => r.id === id);
                 if (resource) setFormData(resource);
             })
             .catch((err) => console.error(err));
-    }, [id]);
+    }, [id, token]);
 
     const handleChange = (e) => {
         setFormData({
@@ -47,8 +50,11 @@ function UpdateResource() {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then(() => {
-                alert("Updated successfully!");
-                navigate("/admin/resource-management");
+                // ❌ OLD
+                // alert("Updated successfully!");
+
+                // ✅ NEW
+                setShowPopup(true);
             })
             .catch((err) => console.error(err));
     };
@@ -128,6 +134,27 @@ function UpdateResource() {
 
                 </form>
             </div>
+
+            {/* ✅ POPUP */}
+            {showPopup && (
+                <div className="popup-overlay">
+                    <div className="popup-box">
+                        <h3>✅ Success</h3>
+                        <p>Resource Updated Successfully!</p>
+
+                        <button
+                            className="popup-btn"
+                            onClick={() => {
+                                setShowPopup(false);
+                                navigate("/admin/resource-management");
+                            }}
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
