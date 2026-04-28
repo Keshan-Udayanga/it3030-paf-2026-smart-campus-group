@@ -76,7 +76,7 @@ public class SecurityConfig {
                         .hasAnyRole("USER")
 
                         .requestMatchers("/api/v1/comments/**")
-                        .hasAnyRole("USER")
+                        .hasAnyRole("USERgit ")
 
                         .anyRequest().authenticated()
                 )
