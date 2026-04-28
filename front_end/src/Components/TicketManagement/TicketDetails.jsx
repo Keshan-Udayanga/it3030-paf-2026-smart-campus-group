@@ -46,7 +46,10 @@ function TicketDetails() {
 
     const fetchTicket = async () => {
         try {
-            const res = await axios.get(`http://localhost:8080/api/v1/tickets/${id}`);
+            const token = localStorage.getItem("token");
+            const res = await axios.get(`http://localhost:8080/api/v1/tickets/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+                });
             setTicket(res.data);
             setLoading(false);
         } catch (err) {
