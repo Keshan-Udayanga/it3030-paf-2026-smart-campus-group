@@ -94,7 +94,7 @@ function MyBookings() {
           </div>
 
           <button
-            onClick={() => navigate("/create-booking")}
+            onClick={() => navigate("/resources")}
             className="new-booking-btn"
           >
             + New Booking
