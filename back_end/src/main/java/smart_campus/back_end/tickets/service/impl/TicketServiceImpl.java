@@ -152,7 +152,16 @@ public class TicketServiceImpl implements TicketService {
                 ticket.getResolvedAt(),
                 ticket.getAttachmentIds(),
                 ticket.getCreatedAt(),
-                ticket.getUpdatedAt()
+                ticket.getUpdatedAt(),
+                ticket.getCreatedBy()
         );
+    }
+
+    @Override
+    public List<TicketResponseDTO> getTicketsByUserId(String userId) {
+        return ticketRepository.findByCreatedBy(userId)
+                .stream()
+                .map(this::mapToResponseDTO)
+                .toList();
     }
 }

@@ -48,4 +48,10 @@ public class TicketController {
         ticketService.deleteTicket(id);
         return ResponseEntity.ok("Ticket deleted successfully");
     }
+
+    @GetMapping("/my")
+    public List<TicketResponseDTO> getMyTickets(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        String userId = userDetails.getUser().getId(); // or extract from JWT properly
+        return ticketService.getTicketsByUserId(userId);
+    }
 }
