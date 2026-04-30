@@ -9,6 +9,7 @@ function AdminBookings() {
   const [resources, setResources] = useState({});
   const [rejectReasons, setRejectReasons] = useState({});
   const [loading, setLoading] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("ALL"); // 👈 ADDED filter state
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -74,6 +75,14 @@ function AdminBookings() {
       setLoading(false),
     );
   }, []);
+
+  // 👇 ADDED: Filtered bookings based on activeFilter
+  const getFilteredBookings = () => {
+    if (activeFilter === "ALL") {
+      return bookings;
+    }
+    return bookings.filter(booking => booking.status === activeFilter);
+  };
 
   // ---------------- APPROVE ----------------
   const handleApprove = async (id) => {
@@ -229,6 +238,8 @@ function AdminBookings() {
   };
 
   // ---------------- UI ----------------
+  const filteredBookings = getFilteredBookings();
+
   return (
     <div className="admin-bookings-page">
       <div className="admin-bookings-container">
@@ -237,6 +248,34 @@ function AdminBookings() {
 
           <button className="summary-btn" onClick={() => navigate("/admin/booking-summary")}>
             View Summary
+          </button>
+        </div>
+
+        {/* 👇 ADDED: Filter buttons */}
+        <div className="filter-buttons">
+          <button 
+            className={activeFilter === "ALL" ? "active-filter" : ""}
+            onClick={() => setActiveFilter("ALL")}
+          >
+            All
+          </button>
+          <button 
+            className={activeFilter === "PENDING" ? "active-filter" : ""}
+            onClick={() => setActiveFilter("PENDING")}
+          >
+            Pending
+          </button>
+          <button 
+            className={activeFilter === "APPROVED" ? "active-filter" : ""}
+            onClick={() => setActiveFilter("APPROVED")}
+          >
+            Approved
+          </button>
+          <button 
+            className={activeFilter === "REJECTED" ? "active-filter" : ""}
+            onClick={() => setActiveFilter("REJECTED")}
+          >
+            Rejected
           </button>
         </div>
 
@@ -259,7 +298,7 @@ function AdminBookings() {
             </thead>
 
             <tbody>
-              {bookings.map((b, i) => (
+              {filteredBookings.map((b, i) => (
                 <React.Fragment key={b.id || i}>
                   {/* ROW 1 */}
                   <tr className="main-row">
